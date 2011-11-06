@@ -2,7 +2,7 @@
 # four paths:
 
 # the directory this file is in
-TOP_DIR=/home/gparmer/research/composite/src/
+TOP_DIR=/home/andrew/SchoolNotes/compsci/os/Composite/CompositeOS_Project/src/
 # the directory the linux source is in
 LDIR=/home/gparmer/research/linux-2.6.33.test/
 #LDIR=/home/gparmer/research/linux-2.6.36/

@@ -1341,3 +1341,5 @@ int spd_composite_remove_member(struct spd *spd, int remove_mappings)
 	
 	return 0;
 }
+
+struct vas *vas_list[2];
