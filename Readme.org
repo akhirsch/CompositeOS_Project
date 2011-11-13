@@ -9,6 +9,6 @@ A project adding Virtual Address Spaces to Composite OS for the Operating System
 All are Juniors at GWU. Krista is a Computer Engineering student. The rest are Computer Science students.
 ** Getting Involved
 Because this is a class project, no involvment is allowed right now. To get involved in Composite OS, contact Professor Parmer at GWU
-** Idea
+** Ideas
 Right now, Composite doesn't have Virtual Address Spaces (VASs). The idea behind this project is to add VASs to Composite, and then implement the fork() system call in the operating system.
 
