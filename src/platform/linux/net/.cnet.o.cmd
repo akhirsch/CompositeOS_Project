@@ -1,0 +1,1 @@
+cmd_/home/composite/CompositeOS_Project/src/platform/linux/net/cnet.o := ld -m elf_i386   -r -o /home/composite/CompositeOS_Project/src/platform/linux/net/cnet.o /home/composite/CompositeOS_Project/src/platform/linux/net/cosnet.o 

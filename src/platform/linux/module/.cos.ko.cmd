@@ -1,0 +1,1 @@
+cmd_/home/composite/CompositeOS_Project/src/platform/linux/module/cos.ko := ld -r -m elf_i386 -T /home/composite/linux-2.6.33.7/scripts/module-common.lds --build-id -o /home/composite/CompositeOS_Project/src/platform/linux/module/cos.ko /home/composite/CompositeOS_Project/src/platform/linux/module/cos.o /home/composite/CompositeOS_Project/src/platform/linux/module/cos.mod.o
