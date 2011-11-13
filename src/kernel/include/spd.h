@@ -193,6 +193,7 @@ struct spd {
 	struct spd *freelist_next;
 	/* Linked list of the members of a non-depricated, current composite spd */
 	struct spd *composite_member_next, *composite_member_prev;
+        struct vas *composite_vas;
 } CACHE_ALIGNED; //cache line size
 
 struct vas { 
@@ -202,6 +203,8 @@ struct vas {
   unsigned int start_addr;
   /* The size of the vas */
   unsigned int size;
+  /* The minimum size needed for the components in the vas. */
+  unsigned int min_size;
 };
 
 paddr_t spd_alloc_pgtbl(void);
