@@ -21,33 +21,31 @@
  * ranges are allocated (currently) on the granularity of a pgd, thus
  * an array of pointers, one for every pgd captures all address->spd
  * mappings.
- */
-struct spd *virtual_spd_layout[PGD_PER_PTBL];
-
+*/
+//struct spd *virtual_spd_layout[PGD_PER_PTBL];
 int virtual_namespace_alloc(struct spd *spd, unsigned long addr, unsigned int size)
 {
 	int i;
 	unsigned long adj_addr = addr>>HPAGE_SHIFT;
 	/* FIXME: this should be rounding up not down */
 	unsigned int adj_to = adj_addr + (size>>HPAGE_SHIFT);
-
+	
 	for (i = adj_addr ; i < adj_to ; i++) {
-		if (virtual_spd_layout[i]) return 0;
+		if (spd->composite_vas->virtual_spd_layout[i]) return 0;
 	}
 
 	//printk("cos: adding spd %d from %x to %x\n", spd_get_index(spd), addr, addr+size);
 	for (i = adj_addr ; i < adj_to ; i++) {
-		virtual_spd_layout[i] = spd;
+		spd->composite_vas->virtual_spd_layout[i] = spd;
 	}
 	
 	return 1;
 }
 
-struct spd *virtual_namespace_query(unsigned long addr)
+struct spd *virtual_namespace_query(unsigned long addr, vas *vasPtr)
 {
 	unsigned long adj = addr>>HPAGE_SHIFT;
-
-	return virtual_spd_layout[adj];
+	return vasPtr->virtual_spd_layout[adj];
 }
 
 int virtual_namespace_free(struct spd *spd, unsigned long addr, unsigned int size)
@@ -59,9 +57,9 @@ int virtual_namespace_free(struct spd *spd, unsigned long addr, unsigned int siz
 	int i;
 
 	for (a = addr ; a < addr+(size>>HPAGE_SHIFT) ; a += HPAGE_SIZE) {
-		if (virtual_namespace_query(a) != spd) return 0;
+		if (virtual_namespace_query(a, spd->composite_vas) != spd) return 0;
 	}
-	for (i = addr_from_idx ; i < addr_to_idx ; i++) virtual_spd_layout[i] = NULL;
+	for (i = addr_from_idx ; i < addr_to_idx ; i++) spd->composite_vas->virtual_spd_layout[i] = NULL;
 	
 	return 1;
 }
@@ -287,7 +285,8 @@ static void spd_init_all(struct spd *spds)
 	spd_freelist_head = spds;
 
 	for (i = 0 ; i < PGD_PER_PTBL ; i++) {
-		virtual_spd_layout[i] = NULL;
+		spds[0]->composite_vas->virtual_spd_layout[i] = NULL;
+		/*virtual_spd_layout[i] = NULL;*/
 	}
 
 	return;

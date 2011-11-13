@@ -386,8 +386,8 @@ static void boot_find_cobjs(struct cobj_header *h, int n)
 static void boot_create_system(void)
 {
   int i;
-	
-  for (i = 0 ; hs[i] != NULL ; i++) {
+  cos_vas_cntl(COS_VAS_CREATE, 0, 0 ,0);
+  for (i = 0 ; hs[i] != NULL ; i++) {    
     struct cobj_header *h;
     spdid_t spdid;
     struct cobj_sect *sect;
@@ -404,6 +404,7 @@ static void boot_create_system(void)
     if (boot_spd_map(h, spdid, comp_info)) BUG();
     if (boot_spd_reserve_caps(h, spdid)) BUG();
     if (cos_spd_cntl(COS_SPD_ACTIVATE, spdid, 0, 0)) BUG();
+    cos_vas_cntl(COS_VAS_SPD_ADD, 0, spdid , 0);
   }
   for (i = 0 ; hs[i] != NULL ; i++) {
     struct cobj_header *h;
