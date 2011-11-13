@@ -197,12 +197,12 @@ struct spd {
 
 struct vas { 
   /* The layout of components in the vas */
-  struct spd *virtual_spd_layout[PGD_PER_TABL]; 
+  struct spd *virtual_spd_layout[PGD_PER_PTBL]; 
   /* Where the vas starts in Composite memory */
   unsigned int start_addr;
   /* The size of the vas */
   unsigned int size;
-}
+};
 
 paddr_t spd_alloc_pgtbl(void);
 void spd_free_pgtbl(paddr_t pa);
