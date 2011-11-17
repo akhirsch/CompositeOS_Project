@@ -15,7 +15,7 @@
 #include "include/spd.h"
 #include "include/debug.h"
 #include "include/page_pool.h"
-
+#define MAX_VAS_NUM 2
 /* 
  * This is the layout in virtual memory of the spds.  Spd's virtual
  * ranges are allocated (currently) on the granularity of a pgd, thus
@@ -1342,4 +1342,5 @@ int spd_composite_remove_member(struct spd *spd, int remove_mappings)
 	return 0;
 }
 
-struct vas *vas_list[2];
+struct vas *vas_list[MAX_VAS_NUM];
+int cur_num_vases = 0;

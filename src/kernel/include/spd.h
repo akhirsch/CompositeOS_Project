@@ -205,6 +205,8 @@ struct vas {
   unsigned int size;
   /* The minimum size needed for the components in the vas. */
   unsigned int min_size;
+  /* Where the vas is in the array. */
+  unsigned int vas_id;
 };
 
 paddr_t spd_alloc_pgtbl(void);
