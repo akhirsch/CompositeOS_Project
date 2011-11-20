@@ -3313,30 +3313,31 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 
 	  break;
 	case COS_VAS_DELETE:	/* remove vas */
-	  /*Pseudocode, assuming that we have vas_id:
-	      struct vas *the_vas = vas_list[vas_id];
+	  /*vas _id is in addr*/
+	      struct vas *the_vas = vas_list[addr];
 	      if(new_vas->min_size > 0) {
 	        printk("Cannot delete a vas with any components in them.\n");
 	        ret = -1;
 		break;
 	      }
-	      free(the_vas);
-	      vas_list[vas_id] = NULL;
+	      vas_free(the_vas);
+	      vas_list[addr] = NULL;
 	   */
 	  break;
 	case COS_VAS_SPD_ADD:	/* add spd to vas */
-	  /*Pseudocode, assuming that we have vas_id:
-	      struct vas *the_vas = vas_list[vas_id];
+	  /*vas_id is in addr */
+	      struct vas *the_vas = vas_list[addr];
 	      if(the_vas->size - the_vas->min_size < 4) {
-	        COS_VAS_EXPAND;
+	        //COS_VAS_EXPAND;
+		cos_syscall_vas_ctrl(id, COS_VAS_SPD_EXPAND, addr, sz);
 	      }
-	      find first empty 4meg spot;
-	      install spd there;
+	      /*find first empty 4meg spot;
+		install spd there;*/
 	  */
 	  break;
 	case COS_VAS_SPD_REM:	/* remove spd from vas */
 	  /*Psuedocode, assuming that we have the spd:
-	    struct vas *the_vas = spd->composite_vas;
+	    struct vas *the_vas = spd->composite_vas;*/
 	    
 	  break;
 	case COS_VAS_SPD_EXPAND:	/* allocate more vas to spd */

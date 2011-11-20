@@ -207,7 +207,14 @@ struct vas {
   unsigned int min_size;
   /* Where the vas is in the array. */
   unsigned int vas_id;
+  /* Free list of vas spots. */
+  struct vas_freelist_node *free_lst;
 };
+
+struct vas_freelist_node {
+  void *ptr;
+  struct vas_freelist_node *next;
+}
 
 paddr_t spd_alloc_pgtbl(void);
 void spd_free_pgtbl(paddr_t pa);
