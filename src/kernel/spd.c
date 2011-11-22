@@ -1345,7 +1345,7 @@ int spd_composite_remove_member(struct spd *spd, int remove_mappings)
 struct vas *vas_list[MAX_VAS_NUM];
 int cur_num_vases = 0;
 
-struct vas_freelist *vas_freelist_new(void *fst) {
+struct vas_freelist *vas_freelist_new(intfst) {
   struct vas_freelist_node *node = vas_freelist_node_new(fst);
   struct vas_freelist *retv = (struct vas_freelist *)(malloc(sizeof(struct cas_freelist)));
 
@@ -1354,7 +1354,7 @@ struct vas_freelist *vas_freelist_new(void *fst) {
   return retv;
 }
 
-struct vas_freelist_node *vas_freelist_node_new(void *fst) {
+struct vas_freelist_node *vas_freelist_node_new(int fst) {
   struct vas_freelist_node *retv = (struct vas_freelist_node *)(malloc(sizeof(struct vas_freelist_node)));
 
   retv->ptr = fst;
@@ -1363,7 +1363,7 @@ struct vas_freelist_node *vas_freelist_node_new(void *fst) {
   return retv;
 }
 
-void vas_freelist_add(struct vas_freelist *flst, void *to_add) {
+void vas_freelist_add(struct vas_freelist *flst, int to_add) {
   struct vas_freelist_node *new = vas_freelist_node_new(to_add);
   flst->last->next = new;
   flst->last = new;

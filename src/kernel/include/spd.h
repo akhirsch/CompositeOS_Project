@@ -198,7 +198,7 @@ struct spd {
 
 struct vas { 
   /* The layout of components in the vas */
-  struct spd *virtual_spd_layout[PGD_PER_PTBL]; 
+  struct spd *virtual_spd_layout[0]; 
   /* Where the vas starts in Composite memory */
   unsigned int start_addr;
   /* The size of the vas */
@@ -217,7 +217,7 @@ struct vas_freelist {
 };
 
 struct vas_freelist_node {
-  void *ptr;
+  int ptr;
   struct vas_freelist_node *next;
 };
 
@@ -227,13 +227,13 @@ struct vas_freelist_node {
 
   The node functions should only be used in the freelist code, the freelist functions should be used by everyone else.
  */
-struct vas_freelist *vas_freelist_new(void *);
-struct vas_freelist_node *vas_freelist_node_new(void *);
-void vas_freelist_add(struct vas_freelist *, void *);
-void *vas_freelist_pop(struct vas_freelist *);
+struct vas_freelist *vas_freelist_new(int);
+struct vas_freelist_node *vas_freelist_node_new(int);
+void vas_freelist_add(struct vas_freelist *, int);
+int vas_freelist_pop(struct vas_freelist *);
 void vas_freelist_node_free(struct vas_freelist_node*);
 void vas_freelist_free(struct vas_freelist *);
-
+int vas_freelist_pop_largest(struct vas_freelist *);
 
 paddr_t spd_alloc_pgtbl(void);
 void spd_free_pgtbl(paddr_t pa);

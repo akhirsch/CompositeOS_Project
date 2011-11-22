@@ -3326,25 +3326,46 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 	  break;
 	case COS_VAS_SPD_ADD:	/* add spd to vas */
 	  /*vas_id is in addr */
-	      struct vas *the_vas = vas_list[addr];
-	      if(the_vas->size - the_vas->min_size < 4) {
-	        //COS_VAS_EXPAND;
-		cos_syscall_vas_ctrl(id, COS_VAS_SPD_EXPAND, addr, sz);
-	      }
-	      /*find first empty 4meg spot;
-		install spd there;*/
-	  */
+	  struct vas *the_vas = vas_list[addr];
+	  if(the_vas->size - the_vas->min_size < 4) {
+	    //COS_VAS_EXPAND;
+	    /* Fix the bit math */
+	    cos_syscall_vas_ctrl(id, COS_VAS_SPD_EXPAND, addr, sz);
+	  }
+	  void *free_spot = vas_freelist_pop(the_vas->free_lst);
+	  the_vas->virtual_spd_layout[free_spot] = spd;
+	      
 	  break;
 	case COS_VAS_SPD_REM:	/* remove spd from vas */
+	  /*vas_id and spd_id are in addr using some bit math*/
 	  /*Psuedocode, assuming that we have the spd:
 	    struct vas *the_vas = spd->composite_vas;*/
+	  spd_free(spd);
+	  the_vas->virtual_spd_layout[addr] = NULL;
+	  vas_freelist_add(the_vas->free_lst, addr);
+	  the_vas->min_size -= 4;
 	    
 	  break;
 	case COS_VAS_SPD_EXPAND:	/* allocate more vas to spd */
 	  if (spd_add_location(spd, addr, sz)) ret = -1;
+	  else {
+	    the_vas = vas_list[addr];
+	    the_vas->virtual_spd_layout = (struct spd *)(malloc(sizeof(struct spd) * (the_vas->size + 1)));
+	    the_vas->size++;
+	  }
 	  break;
 	case COS_VAS_SPD_RETRACT:	/* deallocate some vas from spd */
 		if (spd_rem_location(spd, addr, sz)) ret = -1;
+		else {
+		  the_vas = vas_list[addr];
+		  if(the_vas->size - the_vas->min_size < 4) {
+		    ret = -1;
+		    break;
+		  }
+		  vas_freelist_pop_largest(the_vas->free_lst);
+		  the_vas->size -= 4;
+		  the_vas->virtual_spd_layout = (struct spd *)(malloc(sizeof(struct spd *) * the_vas->size));
+		}
 		break;
         default:
 		printk("vas_cntl: undefined operation %d.\n", op);
