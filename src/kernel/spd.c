@@ -1345,6 +1345,73 @@ int spd_composite_remove_member(struct spd *spd, int remove_mappings)
 struct vas *vas_list[MAX_VAS_NUM];
 int cur_num_vases = 0;
 
+int vas_new() {
+  if(cur_num_vases >= MAX_VAS_NUM) {
+    printk("vas_cntl: cannot create more vases, too many exist.\n");
+    return -1;
+  }
+  int i;
+  struct vas *new_vas = (struct vas *)(malloc(sizeof(struct vas)));
+  for(i = 0; i < PGD_PER_PTBL; i++) {
+    new_vas->virtual_spd_layout[i] = NULL;
+  }
+  new_vas->start_addr = 0;
+  new_vas->size = 0;
+  new_vas->min_size->0;
+  new_vas->vas_id = cur_num_vases++;
+
+  vas_list[new_vas->vas_id] = new_vas;
+  return 1;
+}
+
+int vas_delete(int vas_id) {
+  struct vas *the_vas = vas_list[vas_id];
+  if(new_vas->min_size > 0) {
+    printk("Cannot delete a vas with any components in them.\n");
+    return -1;
+  }
+  vas_free(the_vas);
+  vas_list[vas_id] = NULL;
+  return 1;
+}
+
+int vas_spd_add(int vas_id, struct spd *the_spd) {
+  struct vas *the_vas = vas_list[vas_id];
+  if(the_vas->size - the_vas->min_size < 4) {
+    vas_expand(vas_id);
+  }
+  void *free_spot = vas_freelist_pop(the_vas->free_lst);
+  the_vas->virtual_spd_layout[free_spot] = the_spd;
+  return 1;
+}
+
+int vas_spd_remove(int vas_id, struct spd *spd) {
+  the_vas = vas_list[vas_id];
+  spd_free(spd);
+  the_vas->virtual_spd_layout[vas_id] = NULL;
+  vas_freelist_add(the_vas->free_lst, addr);
+  the_vas->min_size -= 4;
+  return 1;
+}
+
+int vas_expand(int vas_id) {
+  the_vas = vas_list[vas_id];
+  the_vas->virtual_spd_layout = (struct spd *)(malloc(sizeof(struct spd) * (the_vas->size + 1)));
+  the_vas->size++;
+  return 1;
+}
+
+int vas_retract(int vas_id) {
+  the_vas = vas_list[vas_id];
+  if(the_vas->size - the_vas->min_size < 4) {
+    return -1;
+  }
+  vas_freelist_pop_largest(the_vas->free_lst);
+  the_vas->size -= 4;
+  the_vas->virtual_spd_layout = (struct spd *)(malloc(sizeof(struct spd *) * the_vas->size));
+  return 1;
+}
+
 struct vas_freelist *vas_freelist_new(intfst) {
   struct vas_freelist_node *node = vas_freelist_node_new(fst);
   struct vas_freelist *retv = (struct vas_freelist *)(malloc(sizeof(struct cas_freelist)));
