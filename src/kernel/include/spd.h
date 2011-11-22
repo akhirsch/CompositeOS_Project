@@ -205,7 +205,35 @@ struct vas {
   unsigned int size;
   /* The minimum size needed for the components in the vas. */
   unsigned int min_size;
+  /* Where the vas is in the array. */
+  unsigned int vas_id;
+  /* Free list of vas spots. */
+  struct vas_freelist *free_lst;
 };
+
+struct vas_freelist {
+  struct vas_freelist_node *fst;
+  struct vas_freelist_node *lst;
+};
+
+struct vas_freelist_node {
+  void *ptr;
+  struct vas_freelist_node *next;
+};
+
+
+/*
+  VAS freelist struct, for keeping track of free places to put an spd.
+
+  The node functions should only be used in the freelist code, the freelist functions should be used by everyone else.
+ */
+struct vas_freelist *vas_freelist_new(void *);
+struct vas_freelist_node *vas_freelist_node_new(void *);
+void vas_freelist_add(struct vas_freelist *, void *);
+void *vas_freelist_pop(struct vas_freelist *);
+void vas_freelist_node_free(struct vas_freelist_node*);
+void vas_freelist_free(struct vas_freelist *);
+
 
 paddr_t spd_alloc_pgtbl(void);
 void spd_free_pgtbl(paddr_t pa);

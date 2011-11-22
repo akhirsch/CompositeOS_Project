@@ -15,7 +15,7 @@
 #include "include/spd.h"
 #include "include/debug.h"
 #include "include/page_pool.h"
-
+#define MAX_VAS_NUM 2
 /* 
  * This is the layout in virtual memory of the spds.  Spd's virtual
  * ranges are allocated (currently) on the granularity of a pgd, thus
@@ -1342,4 +1342,53 @@ int spd_composite_remove_member(struct spd *spd, int remove_mappings)
 	return 0;
 }
 
-struct vas *vas_list[2];
+struct vas *vas_list[MAX_VAS_NUM];
+int cur_num_vases = 0;
+
+struct vas_freelist *vas_freelist_new(void *fst) {
+  struct vas_freelist_node *node = vas_freelist_node_new(fst);
+  struct vas_freelist *retv = (struct vas_freelist *)(malloc(sizeof(struct cas_freelist)));
+
+  retv->fst = retv->lst = node;
+  
+  return retv;
+}
+
+struct vas_freelist_node *vas_freelist_node_new(void *fst) {
+  struct vas_freelist_node *retv = (struct vas_freelist_node *)(malloc(sizeof(struct vas_freelist_node)));
+
+  retv->ptr = fst;
+  retv->next = NULL;
+
+  return retv;
+}
+
+void vas_freelist_add(struct vas_freelist *flst, void *to_add) {
+  struct vas_freelist_node *new = vas_freelist_node_new(to_add);
+  flst->last->next = new;
+  flst->last = new;
+}
+
+void vas_freelist_pop(struct vas_freelist* lst) {
+  struct vas_freelist_node *node = lst->fst;
+  void *retv = retv->ptr;
+  lst->fst = node->next;
+  vas_freelist_node_free(node);
+  
+  return retv;
+}
+
+void vas_freelist_node_free(struct vas_freelist_node *node) {
+  free(node->ptr);
+  free(node);
+}
+
+void vas_freelist_free(struct vas_freelist *lst) {
+  struct vas_freelist_node *node = lst->fst;
+  
+  while(node != NULL) {
+    struct vas_freelist_node *next = node->next;
+    free(node);
+    node = next;
+  }
+}

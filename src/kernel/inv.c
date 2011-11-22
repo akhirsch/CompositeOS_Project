@@ -3293,22 +3293,64 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 	if (!spd) return -1;
 
 	switch(op) {
-	case COS_VAS_CREATE: 	/* new vas */
+	case COS_VAS_CREATE: 	/* new vas  of size 0*/
+	  if(cur_num_vases >= MAX_VAS_NUM) {
+	    printk("vas_cntl: cannot create more vases, too many exist.\n");
+	    ret = -1;
+	    break;
+	  }
+	  int i;
+	  struct vas *new_vas = (struct vas *)(malloc(sizeof(struct vas)));
+	  for(i = 0; i < PGD_PER_PTBL; i++) {
+	    new_vas->virtual_spd_layout[i] = NULL;
+	  }
+	  new_vas->start_addr = 0;
+	  new_vas->size = 0;
+	  new_vas->min_size->0;
+	  new_vas->vas_id = cur_num_vases++;
+
+	  vas_list[new_vas->vas_id] = new_vas;
+
+	  break;
 	case COS_VAS_DELETE:	/* remove vas */
+	  /*vas _id is in addr*/
+	      struct vas *the_vas = vas_list[addr];
+	      if(new_vas->min_size > 0) {
+	        printk("Cannot delete a vas with any components in them.\n");
+	        ret = -1;
+		break;
+	      }
+	      vas_free(the_vas);
+	      vas_list[addr] = NULL;
+	   */
+	  break;
 	case COS_VAS_SPD_ADD:	/* add spd to vas */
+	  /*vas_id is in addr */
+	      struct vas *the_vas = vas_list[addr];
+	      if(the_vas->size - the_vas->min_size < 4) {
+	        //COS_VAS_EXPAND;
+		cos_syscall_vas_ctrl(id, COS_VAS_SPD_EXPAND, addr, sz);
+	      }
+	      /*find first empty 4meg spot;
+		install spd there;*/
+	  */
+	  break;
 	case COS_VAS_SPD_REM:	/* remove spd from vas */
-	default:
-		printk("vas_cntl: undefined operation %d.\n", op);
-		ret = -1;
-		break;
+	  /*Psuedocode, assuming that we have the spd:
+	    struct vas *the_vas = spd->composite_vas;*/
+	    
+	  break;
 	case COS_VAS_SPD_EXPAND:	/* allocate more vas to spd */
-		if (spd_add_location(spd, addr, sz)) ret = -1;
-		break;
+	  if (spd_add_location(spd, addr, sz)) ret = -1;
+	  break;
 	case COS_VAS_SPD_RETRACT:	/* deallocate some vas from spd */
 		if (spd_rem_location(spd, addr, sz)) ret = -1;
 		break;
+        default:
+		printk("vas_cntl: undefined operation %d.\n", op);
+		ret = -1;
+		break;
 	}
-
 	return ret;
 }
 
