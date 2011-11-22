@@ -373,6 +373,45 @@ static void boot_create_system(void)
 	}
 }
 
+int boot_clone_spd(spdid_t spdid, int dest_vas){
+  int i;
+  struct cobj_header *h = NULL;
+  struct cobj_sect *sect;
+  vaddr_t comp_info = 0;
+  spdid_t new_spdid;
+
+  
+  for(i = 0; hs[i] != NULL; i++){
+    if(hs[i].id == spdid){
+      h = hs[i];
+    }
+  } assert(h);
+
+  if((new_spdid = cos_spd_cntl(COS_SPD_CREATE, 0, 0, 0)) == 0) BUG();
+  
+  h->id = new_spdid;
+
+  sect = cobj_sect_get(h,0);
+  
+  if(cos_spd_cntl(COS_SPD_LOCATION, new_spdid, sect->vaddr, SERVICE_SIZE)) BUG();
+
+  if(boot_spd_symbs(h, new_spdid, &comp_info)) BUG();
+
+  //MEMORY MAPPING ETC
+
+  //END MEM MAPPING
+
+  if(boot_spd_reserve_caps(h, new_spdid)) BUG();
+
+  if(cos_spd_cntl(COS_SPD_ACTIVATE, new_spdid, 0, 0)) BUG();
+  
+  if(boot_spd_caps(h, h->id)) BUG();
+
+  boot_spd_thd(h->id);
+
+  return 0;
+}
+
 void failure_notif_wait(spdid_t caller, spdid_t failed)
 {
 	/* wait for the other thread to finish rebooting the component */
