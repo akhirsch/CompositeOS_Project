@@ -430,6 +430,7 @@ int boot_clone_spd(spdid_t spdid, int dest_vas){
   for(i = 0; hs[i] != NULL; i++){
     if(hs[i].id == spdid){
       h = hs[i];
+      break;
     }
   } assert(h);
 
