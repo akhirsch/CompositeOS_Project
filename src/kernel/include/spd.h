@@ -194,21 +194,18 @@ struct spd {
 	/* Linked list of the members of a non-depricated, current composite spd */
 	struct spd *composite_member_next, *composite_member_prev;
         struct vas *composite_vas;
+        struct vas_freelist nonfree;
 } CACHE_ALIGNED; //cache line size
 
 struct vas { 
   /* The layout of components in the vas */
-  struct spd *virtual_spd_layout[0]; 
+  struct spd *virtual_spd_layout[PGD_PER_PTBL]; 
   /* Where the vas starts in Composite memory */
   unsigned int start_addr;
-  /* The size of the vas */
-  unsigned int size;
-  /* The minimum size needed for the components in the vas. */
-  unsigned int min_size;
   /* Where the vas is in the array. */
   unsigned int vas_id;
-  /* Free list of vas spots. */
-  struct vas_freelist *free_lst;
+  /*The freelist*/
+  struct vas_freelist freelst;
 };
 
 struct vas_freelist {
@@ -234,6 +231,14 @@ int vas_freelist_pop(struct vas_freelist *);
 void vas_freelist_node_free(struct vas_freelist_node*);
 void vas_freelist_free(struct vas_freelist *);
 int vas_freelist_pop_largest(struct vas_freelist *);
+
+/*VAS SYSCALL FUNCTIONS*/
+int vas_new(); /*Creates a new vas and adds it to the vas list*/
+int vas_delete(int); /*Given a vas id, deletes that vas*/
+int vas_spd_add(int, struct spd *); /*Given a vas id and a spd, adds the spd to the vas*/
+int vas_spd_remove(int, struct spd *); /*Given a vas id and a spd, removes the spd from the vas*/
+int vas_expand(int, struct spd *); /*Given a vas id and a spd, gives that spd an extra 4MB space.*/
+int vas_retract(int, struct spd *); /*Given a vas id and a spd, retracts that spd in that vas.*/
 
 paddr_t spd_alloc_pgtbl(void);
 void spd_free_pgtbl(paddr_t pa);

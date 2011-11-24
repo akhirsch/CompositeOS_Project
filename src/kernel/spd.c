@@ -1359,6 +1359,11 @@ int vas_new() {
   new_vas->size = 0;
   new_vas->min_size->0;
   new_vas->vas_id = cur_num_vases++;
+  new_vas->freelst = vas_freelist_new(0);
+
+  for(i = 1; i < PGD_PER_PTBL; i++) {
+    vas_freelist_add(new_vas->freelst, i);
+  }
 
   vas_list[new_vas->vas_id] = new_vas;
   return 1;
@@ -1370,6 +1375,7 @@ int vas_delete(int vas_id) {
     printk("Cannot delete a vas with any components in them.\n");
     return -1;
   }
+  vas_freelist_free(the_vas->freelst);
   vas_free(the_vas);
   vas_list[vas_id] = NULL;
   return 1;
@@ -1377,42 +1383,60 @@ int vas_delete(int vas_id) {
 
 int vas_spd_add(int vas_id, struct spd *the_spd) {
   struct vas *the_vas = vas_list[vas_id];
-  if(the_vas->size - the_vas->min_size < 4) {
-    vas_expand(vas_id);
+  int new_id = vas_freelist_pop();
+  if(new_id < 0) {
+    printk("No space left in vas %d.\n", vas_id);
   }
-  void *free_spot = vas_freelist_pop(the_vas->free_lst);
-  the_vas->virtual_spd_layout[free_spot] = the_spd;
+  
+  the_spd->composite_vas = the_vas;
+  the_spd->internal_vas_id = new_id;
+  the_spd->nonfree = vas_freelist_new(new_id);
+
+  the_vas->virtual_spd_layout[new_id] = the_spd;
+  
   return 1;
 }
 
 int vas_spd_remove(int vas_id, struct spd *spd) {
   the_vas = vas_list[vas_id];
-  spd_free(spd);
-  the_vas->virtual_spd_layout[vas_id] = NULL;
-  vas_freelist_add(the_vas->free_lst, addr);
-  the_vas->min_size -= 4;
+  
+  int id = vas_freelist_pop(spd->nonfree);
+  while(id >= 0) {
+    the_vas->virtual_spd_layout[id] = NULL;
+    vas_freelist_add(the_vas->freelst, id);
+    id = vas_freelist_pop(spd->nonfree);
+  }
+  
+  spd->internal_vas_id = -1;
+  spd->composite_vas = NULL;
+
   return 1;
 }
 
-int vas_expand(int vas_id) {
+int vas_expand(int vas_id, struct spd *spd) {
   the_vas = vas_list[vas_id];
-  the_vas->virtual_spd_layout = (struct spd *)(malloc(sizeof(struct spd) * (the_vas->size + 1)));
-  the_vas->size++;
+  
+  int new_id = vas_freelist_pop(the_vas->freelst);
+  if(new_id < 0) {
+    printk("Not enough room in vas %d.\n", vas_id);
+    return -1;
+  }
+  
+  the_vas->virtual_spd_layout[new_id] = spd;
+  vas_freelist_add(spd->nonfree, new_id);
+
   return 1;
 }
 
 int vas_retract(int vas_id) {
   the_vas = vas_list[vas_id];
-  if(the_vas->size - the_vas->min_size < 4) {
-    return -1;
-  }
-  vas_freelist_pop_largest(the_vas->free_lst);
-  the_vas->size -= 4;
-  the_vas->virtual_spd_layout = (struct spd *)(malloc(sizeof(struct spd *) * the_vas->size));
+
+  
+
   return 1;
 }
 
-struct vas_freelist *vas_freelist_new(intfst) {
+struct vas_freelist *vas_freelist_new(int fst) {
   struct vas_freelist_node *node = vas_freelist_node_new(fst);
   struct vas_freelist *retv = (struct vas_freelist *)(malloc(sizeof(struct cas_freelist)));
 

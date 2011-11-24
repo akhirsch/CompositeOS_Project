@@ -3311,6 +3311,7 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 	  else ret = vas_expand(addr/*?*/);
 	  break;
 	case COS_VAS_SPD_RETRACT:	/* deallocate some vas from spd */
+	  vas_spd_retract(spd, addr, sz);
 	  if (spd_rem_location(spd, addr, sz)) ret = -1;
 	  else ret = vas_retract(addr/*?*/);
 	  break;
