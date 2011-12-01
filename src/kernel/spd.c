@@ -1479,8 +1479,8 @@ int vas_expand(struct vas *the_vas, struct spd *spd) {
   return 1;
 }
 
-int vas_retract(struct vas *the_vas) {
-  int to_free = vas_freelist_pop(the_vas->nonfree);
+int vas_retract(struct vas *the_vas, struct spd *spd) {
+  int to_free = vas_freelist_pop(spd->nonfree);
   vas_freelist_add(the_vas->freelst, to_free);
   
   return 1;
