@@ -224,13 +224,11 @@ static int boot_spd_map_populate(struct cobj_header *h, spdid_t spdid, vaddr_t c
 
 static int boot_spd_map_clone(struct cobj_header *h, spdid_t spdid, spdid_t old_spdid)
 {
-  unsigned int i;
 	
-  src_start_page = local_md[old_spdid].page_start;
-  dest_start_page = local_md[spdid].page_start;
+  char* src_start_page = local_md[old_spdid].page_start;
+  char* dest_start_page = local_md[spdid].page_start;
 
   struct cobj_sect *sect;
-  vaddr_t dest_daddr;
   char *lsrc, *dsrc;
   int left, page_left;
 
@@ -420,32 +418,16 @@ static void boot_create_system(void)
   }
 }
 
-spdid_t fork(spdid_t spdid) {
-  int retv = 0;
-  if((int vas_id = cos_syscall_vas_cntl(0, COS_VAS_CREATE << 16, 0, 0)) == -1)
-    BUG();
-  if((spdid_t new_spdid = cos_syscall_spd_ctrl(COS_SPD_CREATE, 0, 0, 0)) == 0)
-    BUG();
-  if((cos_syscall_vas_cntl(0, (((new_spdid << 16) & 0xFFFF0000) + COS_VAS_SPD_ADD), vas_id, 0)) == -1) 
-    BUG();
-  
-  boot_clone_spd(new_spdid, spdid);
-  retv = new_spdid;
 
-  return retv;
-    
-}
 
 int boot_clone_spd(spdid_t new_spdid, spdid_t spdid){
   int i;
   struct cobj_header *h = NULL;
   struct cobj_sect *sect;
   vaddr_t comp_info = 0;
-  spdid_t new_spdid;
 
-  
   for(i = 0; hs[i] != NULL; i++){
-    if(hs[i].id == spdid){
+    if(hs[i]->id == spdid){
       h = hs[i];
       break;
     }
@@ -481,6 +463,24 @@ void failure_notif_wait(spdid_t caller, spdid_t failed)
   /* wait for the other thread to finish rebooting the component */
   LOCK();	
   UNLOCK();
+}
+
+spdid_t boot_fork(spdid_t spdid) {
+  int retv = 0;
+  spdid_t new_spdid;
+  int vas_id;
+  if((vas_id = cos_vas_cntl(0, COS_VAS_CREATE << 16, 0, 0) == -1))
+     BUG();
+  if((new_spdid = cos_spd_cntl(COS_SPD_CREATE, 0, 0, 0)) == 0)
+    BUG();
+  if((cos_vas_cntl(0, (((new_spdid << 16) & 0xFFFF0000) + COS_VAS_SPD_ADD), vas_id, 0)) == -1) 
+    BUG();
+  
+  boot_clone_spd(new_spdid, spdid);
+  retv = new_spdid;
+
+  return retv;
+    
 }
 
 /* Reboot the failed component! */
