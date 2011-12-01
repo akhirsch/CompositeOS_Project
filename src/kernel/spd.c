@@ -21,33 +21,31 @@
  * ranges are allocated (currently) on the granularity of a pgd, thus
  * an array of pointers, one for every pgd captures all address->spd
  * mappings.
- */
-struct spd *virtual_spd_layout[PGD_PER_PTBL];
-
+*/
+//struct spd *virtual_spd_layout[PGD_PER_PTBL];
 int virtual_namespace_alloc(struct spd *spd, unsigned long addr, unsigned int size)
 {
 	int i;
 	unsigned long adj_addr = addr>>HPAGE_SHIFT;
 	/* FIXME: this should be rounding up not down */
 	unsigned int adj_to = adj_addr + (size>>HPAGE_SHIFT);
-
+	
 	for (i = adj_addr ; i < adj_to ; i++) {
-		if (virtual_spd_layout[i]) return 0;
+		if (spd->composite_vas->virtual_spd_layout[i]) return 0;
 	}
 
 	//printk("cos: adding spd %d from %x to %x\n", spd_get_index(spd), addr, addr+size);
 	for (i = adj_addr ; i < adj_to ; i++) {
-		virtual_spd_layout[i] = spd;
+		spd->composite_vas->virtual_spd_layout[i] = spd;
 	}
 	
 	return 1;
 }
 
-struct spd *virtual_namespace_query(unsigned long addr)
+struct spd *virtual_namespace_query(unsigned long addr, vas *vasPtr)
 {
 	unsigned long adj = addr>>HPAGE_SHIFT;
-
-	return virtual_spd_layout[adj];
+	return vasPtr->virtual_spd_layout[adj];
 }
 
 int virtual_namespace_free(struct spd *spd, unsigned long addr, unsigned int size)
@@ -59,9 +57,9 @@ int virtual_namespace_free(struct spd *spd, unsigned long addr, unsigned int siz
 	int i;
 
 	for (a = addr ; a < addr+(size>>HPAGE_SHIFT) ; a += HPAGE_SIZE) {
-		if (virtual_namespace_query(a) != spd) return 0;
+		if (virtual_namespace_query(a, spd->composite_vas) != spd) return 0;
 	}
-	for (i = addr_from_idx ; i < addr_to_idx ; i++) virtual_spd_layout[i] = NULL;
+	for (i = addr_from_idx ; i < addr_to_idx ; i++) spd->composite_vas->virtual_spd_layout[i] = NULL;
 	
 	return 1;
 }
@@ -287,7 +285,8 @@ static void spd_init_all(struct spd *spds)
 	spd_freelist_head = spds;
 
 	for (i = 0 ; i < PGD_PER_PTBL ; i++) {
-		virtual_spd_layout[i] = NULL;
+		spds[0]->composite_vas->virtual_spd_layout[i] = NULL;
+		/*virtual_spd_layout[i] = NULL;*/
 	}
 
 	return;
@@ -1342,10 +1341,152 @@ int spd_composite_remove_member(struct spd *spd, int remove_mappings)
 	return 0;
 }
 
+struct vas_freelist *vas_freelist_new(int n) {
+  struct vas_freelist *free = (struct vas_freelist *)(malloc(sizeof(struct vas_freelist)));
+  
+  struct vas_freelist_node first = vas_freelist_node_new(n);
+  free->fst = free->lst = first;
+
+  return free;
+}
+
+struct vas_freelist_node *vas_freelist_node_new(int n) {
+  struct vas_freelist_node *node = (struct vas_freelist_node *)(malloc(sizeof(struct vas_freelist)));
+  
+  node->index = n;
+  node->next = NULL;
+  
+  return node;
+}
+
+void vas_freelist_add(struct vas_freelist *free, int n) {
+  struct vas_freelist_node node = vas_freelist_node_new(n);
+  if(free->lst == NULL) {
+    free->fst = free->lst = node;
+  }
+  free->lst->next = node;
+}
+
+int vas_freelist_pop(struct vas_freelist *free) {
+  if(free->fst == NULL) {
+    return -1;
+  }
+  struct vas_freelist_node node = free->fst;
+  free->fst = node->next;
+  int retv = node->index;
+  vas_freelist_node_free(node);
+
+  return retv;
+}
+ 
+void vas_freelist_node_free(struct vas_freelist_node *node) {
+  node->next = NULL;
+  free(node);
+}
+
+void vas_freelist_free(struct vas_freelist *list) {
+  if(list->fst != NULL) {
+    struct vas_freelist_node cur = list->fst;
+    struct vas_freelits_node nxt = cur->next;
+    while(cur != NULL) {
+      vas_freelist_node_free(cur);
+      cur = nxt;
+      nxt = cur->next;
+    }
+  }
+  free(list);
+}
+    
 struct vas *vas_list[MAX_VAS_NUM];
 int cur_num_vases = 0;
 
-struct vas_freelist *vas_freelist_new(intfst) {
+int vas_new() {
+  if(cur_num_vases >= MAX_VAS_NUM) {
+    printk("vas_cntl: cannot create more vases, too many exist.\n");
+    return -1;
+  }
+  int i;
+  struct vas *new_vas = (struct vas *)(malloc(sizeof(struct vas)));
+  for(i = 0; i < PGD_PER_PTBL; i++) {
+    new_vas->virtual_spd_layout[i] = NULL;
+  }
+  new_vas->start_addr = 0;
+  new_vas->size = 0;
+  new_vas->min_size->0;
+  new_vas->vas_id = cur_num_vases++;
+  new_vas->freelst = vas_freelist_new(0);
+
+  for(i = 1; i < PGD_PER_PTBL; i++) {
+    vas_freelist_add(new_vas->freelst, i);
+  }
+
+  vas_list[new_vas->vas_id] = new_vas;
+  return 1;
+}
+
+int vas_delete(int vas_id) {
+  struct vas *the_vas = vas_list[vas_id];
+  if(new_vas->min_size > 0) {
+    printk("Cannot delete a vas with any components in them.\n");
+    return -1;
+  }
+  vas_freelist_free(the_vas->freelst);
+  vas_free(the_vas);
+  vas_list[vas_id] = NULL;
+  return 1;
+}
+
+int vas_spd_add(int vas_id, struct spd *the_spd) {
+  struct vas *the_vas = vas_list[vas_id];
+  int new_id = vas_freelist_pop();
+  if(new_id < 0) {
+    printk("No space left in vas %d.\n", vas_id);
+  }
+  
+  the_spd->composite_vas = the_vas;
+  the_spd->internal_vas_id = new_id;
+  the_spd->nonfree = vas_freelist_new(new_id);
+
+  the_vas->virtual_spd_layout[new_id] = the_spd;
+  
+  return 1;
+}
+
+int vas_spd_remove(struct vas *the_vas, struct spd *spd) {
+  int id = vas_freelist_pop(spd->nonfree);
+  while(id >= 0) {
+    the_vas->virtual_spd_layout[id] = NULL;
+    vas_freelist_add(the_vas->freelst, id);
+    id = vas_freelist_pop(spd->nonfree);
+  }
+  
+  spd->internal_vas_id = -1;
+  spd->composite_vas = NULL;
+
+  return 1;
+}
+
+int vas_expand(struct vas *the_vas, struct spd *spd) {
+  int new_id = vas_freelist_pop(the_vas->freelst);
+  if(new_id < 0) {
+    printk("Not enough room in vas %d.\n", vas_id);
+    return -1;
+  }
+  
+  the_vas->virtual_spd_layout[new_id] = spd;
+  vas_freelist_add(spd->nonfree, new_id);
+
+  return 1;
+}
+
+int vas_retract(struct vas *the_vas) {
+  int to_free = vas_freelist_pop(the_vas->nonfree);
+  vas_freelist_add(the_vas->freelst, to_free);
+  
+  return 1;
+}
+
+struct vas_freelist *vas_freelist_new(int fst) {
   struct vas_freelist_node *node = vas_freelist_node_new(fst);
   struct vas_freelist *retv = (struct vas_freelist *)(malloc(sizeof(struct cas_freelist)));
 
