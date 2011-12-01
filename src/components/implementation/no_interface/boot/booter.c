@@ -420,6 +420,10 @@ static void boot_create_system(void)
   }
 }
 
+spdid_t fork() {
+  
+}
+
 int boot_clone_spd(spdid_t spdid, int dest_vas){
   int i;
   struct cobj_header *h = NULL;

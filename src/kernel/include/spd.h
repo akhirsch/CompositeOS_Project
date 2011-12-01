@@ -214,7 +214,7 @@ struct vas_freelist {
 };
 
 struct vas_freelist_node {
-  int n;
+  int index;
   struct vas_freelist_node *next;
 };
 
