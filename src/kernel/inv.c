@@ -3304,16 +3304,16 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 	  ret = vas_spd_add(addr, spd);
 	  break;
 	case COS_VAS_SPD_REM:	/* remove spd from vas */
-	  ret = vas_spd_remove(addr, spd);	    
+	  ret = vas_spd_remove(spd->composite_vas, spd);	    
 	  break;
 	case COS_VAS_SPD_EXPAND:	/* allocate more vas to spd */
 	  if (spd_add_location(spd, addr, sz)) ret = -1;
-	  else ret = vas_expand(addr/*?*/);
+	  else ret = vas_expand(spd->composite_vas);
 	  break;
 	case COS_VAS_SPD_RETRACT:	/* deallocate some vas from spd */
 	  vas_spd_retract(spd, addr, sz);
 	  if (spd_rem_location(spd, addr, sz)) ret = -1;
-	  else ret = vas_retract(addr/*?*/);
+	  else ret = vas_retract(spd->composite_vas);
 	  break;
         default:
 	  printk("vas_cntl: undefined operation %d.\n", op);

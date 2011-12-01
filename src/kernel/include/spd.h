@@ -214,7 +214,7 @@ struct vas_freelist {
 };
 
 struct vas_freelist_node {
-  int ptr;
+  int n;
   struct vas_freelist_node *next;
 };
 
@@ -230,15 +230,14 @@ void vas_freelist_add(struct vas_freelist *, int);
 int vas_freelist_pop(struct vas_freelist *);
 void vas_freelist_node_free(struct vas_freelist_node*);
 void vas_freelist_free(struct vas_freelist *);
-int vas_freelist_pop_largest(struct vas_freelist *);
 
 /*VAS SYSCALL FUNCTIONS*/
 int vas_new(); /*Creates a new vas and adds it to the vas list*/
 int vas_delete(int); /*Given a vas id, deletes that vas*/
 int vas_spd_add(int, struct spd *); /*Given a vas id and a spd, adds the spd to the vas*/
-int vas_spd_remove(int, struct spd *); /*Given a vas id and a spd, removes the spd from the vas*/
-int vas_expand(int, struct spd *); /*Given a vas id and a spd, gives that spd an extra 4MB space.*/
-int vas_retract(int, struct spd *); /*Given a vas id and a spd, retracts that spd in that vas.*/
+int vas_spd_remove(struct vas *, struct spd *); /*Given a vas id and a spd, removes the spd from the vas*/
+int vas_expand(struct vas *, struct spd *); /*Given a vas id and a spd, gives that spd an extra 4MB space.*/
+int vas_retract(struct vas *, struct spd *); /*Given a vas id and a spd, retracts that spd in that vas.*/
 
 paddr_t spd_alloc_pgtbl(void);
 void spd_free_pgtbl(paddr_t pa);

@@ -1342,6 +1342,62 @@ int spd_composite_remove_member(struct spd *spd, int remove_mappings)
 	return 0;
 }
 
+struct vas_freelist *vas_freelist_new(int n) {
+  struct vas_freelist *free = (struct vas_freelist *)(malloc(sizeof(struct vas_freelist)));
+  
+  struct vas_freelist_node first = vas_freelist_node_new(n);
+  free->fst = free->lst = first;
+
+  return free;
+}
+
+struct vas_freelist_node *vas_freelist_node_new(int n) {
+  struct vas_freelist_node *node = (struct vas_freelist_node *)(malloc(sizeof(struct vas_freelist)));
+  
+  node->index = n;
+  node->next = NULL;
+  
+  return node;
+}
+
+void vas_freelist_add(struct vas_freelist *free, int n) {
+  struct vas_freelist_node node = vas_freelist_node_new(n);
+  if(free->lst == NULL) {
+    free->fst = free->lst = node;
+  }
+  free->lst->next = node;
+}
+
+int vas_freelist_pop(struct vas_freelist *free) {
+  if(free->fst == NULL) {
+    return -1;
+  }
+  struct vas_freelist_node node = free->fst;
+  free->fst = node->next;
+  int retv = node->index;
+  vas_freelist_node_free(node);
+
+  return retv;
+}
+ 
+void vas_freelist_node_free(struct vas_freelist_node *node) {
+  node->next = NULL;
+  free(node);
+}
+
+void vas_freelist_free(struct vas_freelist *list) {
+  if(list->fst != NULL) {
+    struct vas_freelist_node cur = list->fst;
+    struct vas_freelits_node nxt = cur->next;
+    while(cur != NULL) {
+      vas_freelist_node_free(cur);
+      cur = nxt;
+      nxt = cur->next;
+    }
+  }
+  free(list);
+}
+    
 struct vas *vas_list[MAX_VAS_NUM];
 int cur_num_vases = 0;
 
@@ -1397,9 +1453,7 @@ int vas_spd_add(int vas_id, struct spd *the_spd) {
   return 1;
 }
 
-int vas_spd_remove(int vas_id, struct spd *spd) {
-  the_vas = vas_list[vas_id];
-  
+int vas_spd_remove(struct vas *the_vas, struct spd *spd) {
   int id = vas_freelist_pop(spd->nonfree);
   while(id >= 0) {
     the_vas->virtual_spd_layout[id] = NULL;
@@ -1413,9 +1467,7 @@ int vas_spd_remove(int vas_id, struct spd *spd) {
   return 1;
 }
 
-int vas_expand(int vas_id, struct spd *spd) {
-  the_vas = vas_list[vas_id];
-  
+int vas_expand(struct vas *the_vas, struct spd *spd) {
   int new_id = vas_freelist_pop(the_vas->freelst);
   if(new_id < 0) {
     printk("Not enough room in vas %d.\n", vas_id);
@@ -1428,11 +1480,10 @@ int vas_expand(int vas_id, struct spd *spd) {
   return 1;
 }
 
-int vas_retract(int vas_id) {
-  the_vas = vas_list[vas_id];
-
+int vas_retract(struct vas *the_vas) {
+  int to_free = vas_freelist_pop(the_vas->nonfree);
+  vas_freelist_add(the_vas->freelst, to_free);
   
-
   return 1;
 }
 
