@@ -420,8 +420,22 @@ static void boot_create_system(void)
   }
 }
 
-spdid_t fork() {
+spdid_t fork(spdid_t spdid) {
+  int retv = 0;
+  if((int vas_id = cos_syscall_vas_cntl(0, COS_VAS_CREATE << 16, 0, 0)) == -1)
+    goto bug;
+  if((spdid_t new_spdid = cos_syscall_spd_ctrl(COS_SPD_CREATE, 0, 0, 0)) == 0)
+    goto bug;
+  if((cos_syscall_vas_cntl(0, (((new_spdid << 16) & 0xFFFF0000) + COS_VAS_SPD_ADD), vas_id, 0)) == 0) 
+    goto bug;
   
+  boot_clone_spd(spdid, new_spdid);
+  retv = 1;
+
+ done: return retv;
+ bug: retv = -1;
+  goto done;
+    
 }
 
 int boot_clone_spd(spdid_t spdid, int dest_vas){

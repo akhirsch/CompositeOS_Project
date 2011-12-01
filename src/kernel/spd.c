@@ -1421,7 +1421,7 @@ int vas_new() {
   }
 
   vas_list[new_vas->vas_id] = new_vas;
-  return 1;
+  return new_vas->vas_id;
 }
 
 int vas_delete(int vas_id) {
