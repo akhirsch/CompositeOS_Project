@@ -426,7 +426,7 @@ spdid_t fork(spdid_t spdid) {
     BUG();
   if((spdid_t new_spdid = cos_syscall_spd_ctrl(COS_SPD_CREATE, 0, 0, 0)) == 0)
     BUG();
-  if((cos_syscall_vas_cntl(0, (((new_spdid << 16) & 0xFFFF0000) + COS_VAS_SPD_ADD), vas_id, 0)) == 0) 
+  if((cos_syscall_vas_cntl(0, (((new_spdid << 16) & 0xFFFF0000) + COS_VAS_SPD_ADD), vas_id, 0)) == -1) 
     BUG();
   
   boot_clone_spd(new_spdid, spdid);
