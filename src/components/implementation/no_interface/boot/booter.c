@@ -423,18 +423,16 @@ static void boot_create_system(void)
 spdid_t fork(spdid_t spdid) {
   int retv = 0;
   if((int vas_id = cos_syscall_vas_cntl(0, COS_VAS_CREATE << 16, 0, 0)) == -1)
-    goto bug;
+    BUG();
   if((spdid_t new_spdid = cos_syscall_spd_ctrl(COS_SPD_CREATE, 0, 0, 0)) == 0)
-    goto bug;
+    BUG();
   if((cos_syscall_vas_cntl(0, (((new_spdid << 16) & 0xFFFF0000) + COS_VAS_SPD_ADD), vas_id, 0)) == 0) 
-    goto bug;
+    BUG();
   
   boot_clone_spd(new_spdid, spdid);
-  retv = 1;
+  retv = new_spdid;
 
- done: return retv;
- bug: retv = -1;
-  goto done;
+  return retv;
     
 }
 
