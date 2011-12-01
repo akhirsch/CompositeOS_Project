@@ -429,7 +429,7 @@ spdid_t fork(spdid_t spdid) {
   if((cos_syscall_vas_cntl(0, (((new_spdid << 16) & 0xFFFF0000) + COS_VAS_SPD_ADD), vas_id, 0)) == 0) 
     goto bug;
   
-  boot_clone_spd(spdid, new_spdid);
+  boot_clone_spd(new_spdid, spdid);
   retv = 1;
 
  done: return retv;
@@ -438,7 +438,7 @@ spdid_t fork(spdid_t spdid) {
     
 }
 
-int boot_clone_spd(spdid_t spdid, int dest_vas){
+int boot_clone_spd(spdid_t new_spdid, spdid_t spdid){
   int i;
   struct cobj_header *h = NULL;
   struct cobj_sect *sect;
@@ -452,9 +452,8 @@ int boot_clone_spd(spdid_t spdid, int dest_vas){
       break;
     }
   } assert(h);
-
-  if((new_spdid = cos_spd_cntl(COS_SPD_CREATE, 0, 0, 0)) == 0) BUG();
   
+
   h->id = new_spdid;
 
   sect = cobj_sect_get(h,0);
