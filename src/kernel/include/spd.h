@@ -194,7 +194,7 @@ struct spd {
 	/* Linked list of the members of a non-depricated, current composite spd */
 	struct spd *composite_member_next, *composite_member_prev;
         struct vas *composite_vas;
-        struct vas_freelist nonfree;
+        struct vas_freelist *nonfree;
 } CACHE_ALIGNED; //cache line size
 
 struct vas { 
@@ -205,7 +205,7 @@ struct vas {
   /* Where the vas is in the array. */
   unsigned int vas_id;
   /*The freelist*/
-  struct vas_freelist freelst;
+  struct vas_freelist *freelst;
 };
 
 struct vas_freelist {
@@ -232,7 +232,7 @@ void vas_freelist_node_free(struct vas_freelist_node*);
 void vas_freelist_free(struct vas_freelist *);
 
 /*VAS SYSCALL FUNCTIONS*/
-int vas_new(); /*Creates a new vas and adds it to the vas list*/
+int vas_new( void ); /*Creates a new vas and adds it to the vas list*/
 int vas_delete(int); /*Given a vas id, deletes that vas*/
 int vas_spd_add(int, struct spd *); /*Given a vas id and a spd, adds the spd to the vas*/
 int vas_spd_remove(struct vas *, struct spd *); /*Given a vas id and a spd, removes the spd from the vas*/
