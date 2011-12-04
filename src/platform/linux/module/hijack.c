@@ -542,7 +542,7 @@ static long aed_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 				spd_free(spd);
 				return -1;
 			}
-			assert(spd == virtual_namespace_query(spd_info.lowest_addr+PAGE_SIZE));
+			assert(spd == virtual_namespace_query(spd_info.lowest_addr+PAGE_SIZE, spd->composite_vas));
 
 			copy_pgd_range(mm, current->mm, spd_info.lowest_addr, spd_info.size);
 			copy_pgd_range(mm, current->mm, COS_INFO_REGION_ADDR, PGD_RANGE);
@@ -848,7 +848,7 @@ static int cos_prelinux_handle_page_fault(struct thread *thd, struct pt_regs *re
 	 */
 	
 	/* 1 */
-	origin = virtual_namespace_query(ucap_addr);
+	origin = virtual_namespace_query(ucap_addr, origin->composite_vas);
 	if (unlikely(NULL == origin)) return 0;
 	/* up-to-date pd */
 	curr = origin->composite_spd;

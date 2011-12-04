@@ -130,7 +130,7 @@ COS_SYSCALL vaddr_t ipc_walk_static_cap(struct thread *thd, unsigned int capabil
 	capability >>= 20;
 
 	if (unlikely(capability >= MAX_STATIC_CAP)) {
-		struct spd *t = virtual_namespace_query(ip);
+		struct spd *t = virtual_namespace_query(ip, t->composite_vas);
 		printk("cos: capability %d greater than max from spd %d @ %x.\n", 
 		       capability, (t) ? spd_get_index(t): 0, (unsigned int)ip);
 		return 0;
@@ -251,7 +251,7 @@ COS_SYSCALL struct thd_invocation_frame *pop(struct thread *curr, struct pt_regs
 /* return 1 if the fault is handled by a component */
 int fault_ipc_invoke(struct thread *thd, vaddr_t fault_addr, int flags, struct pt_regs *regs, int fault_num)
 {
-	struct spd *s = virtual_namespace_query(regs->ip);
+	struct spd *s = virtual_namespace_query(regs->ip, s->composite_vas);
 	struct thd_invocation_frame *curr_frame;
 	struct inv_ret_struct r;
 	vaddr_t a;
@@ -2983,7 +2983,7 @@ COS_SYSCALL int cos_syscall_mmap_cntl(int spdid, long op_flags_dspd, vaddr_t dad
 	dspd_id = op_flags_dspd & 0x0000FFFF;
 
 	spd = spd_get_by_index(dspd_id);
-	if (NULL == spd || virtual_namespace_query(daddr) != spd) {
+	if (NULL == spd || virtual_namespace_query(daddr, spd->composite_vas) != spd) {
 		printk("cos: invalid mmap cntl call for spd %d for spd %d @ vaddr %x\n",
 		       spdid, dspd_id, (unsigned int)daddr);
 		return -1;

@@ -404,7 +404,7 @@ static inline int spd_composite_move_member(struct composite_spd *cspd_new, stru
 	return 0;
 }
 
-struct spd *virtual_namespace_query(unsigned long addr);
+struct spd *virtual_namespace_query(unsigned long addr, struct vas *vasPtr);
 int virtual_namespace_alloc(struct spd *spd, unsigned long addr, unsigned int size);
 
 /*
