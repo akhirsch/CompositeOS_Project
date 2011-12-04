@@ -1342,7 +1342,7 @@ int spd_composite_remove_member(struct spd *spd, int remove_mappings)
 }
 
 struct vas_freelist *vas_freelist_new(int n) {
-  struct vas_freelist *free = (struct vas_freelist *)(malloc(sizeof(struct vas_freelist)));
+  struct vas_freelist *free = (struct vas_freelist *)(kalloc(sizeof(struct vas_freelist)));
   
   struct vas_freelist_node first = vas_freelist_node_new(n);
   free->fst = free->lst = first;
@@ -1351,7 +1351,7 @@ struct vas_freelist *vas_freelist_new(int n) {
 }
 
 struct vas_freelist_node *vas_freelist_node_new(int n) {
-  struct vas_freelist_node *node = (struct vas_freelist_node *)(malloc(sizeof(struct vas_freelist)));
+  struct vas_freelist_node *node = (struct vas_freelist_node *)(kalloc(sizeof(struct vas_freelist)));
   
   node->index = n;
   node->next = NULL;
@@ -1406,7 +1406,7 @@ int vas_new() {
     return -1;
   }
   int i;
-  struct vas *new_vas = (struct vas *)(malloc(sizeof(struct vas)));
+  struct vas *new_vas = (struct vas *)(kalloc(sizeof(struct vas)));
   for(i = 0; i < PGD_PER_PTBL; i++) {
     new_vas->virtual_spd_layout[i] = NULL;
   }
@@ -1488,7 +1488,7 @@ int vas_retract(struct vas *the_vas, struct spd *spd) {
 
 struct vas_freelist *vas_freelist_new(int fst) {
   struct vas_freelist_node *node = vas_freelist_node_new(fst);
-  struct vas_freelist *retv = (struct vas_freelist *)(malloc(sizeof(struct cas_freelist)));
+  struct vas_freelist *retv = (struct vas_freelist *)(kalloc(sizeof(struct cas_freelist)));
 
   retv->fst = retv->lst = node;
   
@@ -1496,7 +1496,7 @@ struct vas_freelist *vas_freelist_new(int fst) {
 }
 
 struct vas_freelist_node *vas_freelist_node_new(int fst) {
-  struct vas_freelist_node *retv = (struct vas_freelist_node *)(malloc(sizeof(struct vas_freelist_node)));
+  struct vas_freelist_node *retv = (struct vas_freelist_node *)(kalloc(sizeof(struct vas_freelist_node)));
 
   retv->ptr = fst;
   retv->next = NULL;
