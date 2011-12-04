@@ -7,13 +7,15 @@
 #define ITER (1024*128)
 u64_t meas[ITER];
 int data[4096];
-int data_unint[4096];
+int data_uninit[4096];
 
 void cos_init(void)
 {
-	u64_t start, end, avg, tot = 0, dev = 0;
-	int i, j;
+  //u64_t start, end, avg, tot = 0, dev = 0;
+  //	int i, j;
 
+
+	
 	int cnt;
 	for(cnt = 0; cnt < 4096; cnt++){
 	  data_uninit[cnt] = 0;
@@ -28,7 +30,7 @@ void cos_init(void)
 	printc("Starting Invocations.\n");
 
 	boot_fork();
-	printc("Fork from spd %d\n", cos_spd_id());
+	printc("Fork from spd %ld\n", cos_spd_id());
 	
 	/* for (i = 0 ; i < ITER ; i++) { */
 	/* 	rdtscll(start); */
