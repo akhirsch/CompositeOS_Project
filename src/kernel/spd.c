@@ -42,7 +42,7 @@ int virtual_namespace_alloc(struct spd *spd, unsigned long addr, unsigned int si
 	return 1;
 }
 
-struct spd *virtual_namespace_query(unsigned long addr, vas *vasPtr)
+struct spd *virtual_namespace_query(unsigned long addr, struct vas *vasPtr)
 {
 	unsigned long adj = addr>>HPAGE_SHIFT;
 	return vasPtr->virtual_spd_layout[adj];
@@ -285,7 +285,7 @@ static void spd_init_all(struct spd *spds)
 	spd_freelist_head = spds;
 
 	for (i = 0 ; i < PGD_PER_PTBL ; i++) {
-		spds[0]->composite_vas->virtual_spd_layout[i] = NULL;
+		spds[0].composite_vas->virtual_spd_layout[i] = NULL;
 		/*virtual_spd_layout[i] = NULL;*/
 	}
 
