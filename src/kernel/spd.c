@@ -1344,7 +1344,7 @@ int spd_composite_remove_member(struct spd *spd, int remove_mappings)
 struct vas_freelist *vas_freelist_new(int n) {
   struct vas_freelist *free = (struct vas_freelist *)(kalloc(sizeof(struct vas_freelist)));
   
-  struct vas_freelist_node first = vas_freelist_node_new(n);
+  struct vas_freelist_node *first = vas_freelist_node_new(n);
   free->fst = free->lst = first;
 
   return free;
@@ -1360,7 +1360,7 @@ struct vas_freelist_node *vas_freelist_node_new(int n) {
 }
 
 void vas_freelist_add(struct vas_freelist *free, int n) {
-  struct vas_freelist_node node = vas_freelist_node_new(n);
+  struct vas_freelist_node *node = vas_freelist_node_new(n);
   if(free->lst == NULL) {
     free->fst = free->lst = node;
   }
@@ -1371,7 +1371,8 @@ int vas_freelist_pop(struct vas_freelist *free) {
   if(free->fst == NULL) {
     return -1;
   }
-  struct vas_freelist_node node = free->fst;
+  struct vas_freelist_node *node;
+  node = free->fst;
   free->fst = node->next;
   int retv = node->index;
   vas_freelist_node_free(node);
@@ -1386,8 +1387,8 @@ void vas_freelist_node_free(struct vas_freelist_node *node) {
 
 void vas_freelist_free(struct vas_freelist *list) {
   if(list->fst != NULL) {
-    struct vas_freelist_node cur = list->fst;
-    struct vas_freelits_node nxt = cur->next;
+    struct vas_freelist_node *cur = list->fst;
+    struct vas_freelits_node *nxt = cur->next;
     while(cur != NULL) {
       vas_freelist_node_free(cur);
       cur = nxt;
@@ -1411,34 +1412,29 @@ int vas_new() {
     new_vas->virtual_spd_layout[i] = NULL;
   }
   new_vas->start_addr = 0;
-  new_vas->size = 0;
-  new_vas->min_size->0;
+  new_vas->max_size = 0;
   new_vas->vas_id = cur_num_vases++;
   new_vas->freelst = vas_freelist_new(0);
 
   for(i = 1; i < PGD_PER_PTBL; i++) {
     vas_freelist_add(new_vas->freelst, i);
   }
-
   vas_list[new_vas->vas_id] = new_vas;
   return new_vas->vas_id;
 }
 
 int vas_delete(int vas_id) {
   struct vas *the_vas = vas_list[vas_id];
-  if(new_vas->min_size > 0) {
-    printk("Cannot delete a vas with any components in them.\n");
-    return -1;
-  }
   vas_freelist_free(the_vas->freelst);
-  vas_free(the_vas);
+  free(the_vas->virtual_spd_layout);
+  free(the_vas);
   vas_list[vas_id] = NULL;
   return 1;
 }
 
 int vas_spd_add(int vas_id, struct spd *the_spd) {
   struct vas *the_vas = vas_list[vas_id];
-  int new_id = vas_freelist_pop();
+  int new_id = vas_freelist_pop(the_vas->freelst);
   if(new_id < 0) {
     printk("No space left in vas %d.\n", vas_id);
   }
