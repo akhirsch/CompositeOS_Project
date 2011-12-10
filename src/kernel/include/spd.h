@@ -194,7 +194,6 @@ struct spd {
 	/* Linked list of the members of a non-depricated, current composite spd */
 	struct spd *composite_member_next, *composite_member_prev;
         struct vas *composite_vas;
-        struct vas_freelist *nonfree;
 } CACHE_ALIGNED; //cache line size
 
 struct vas { 
@@ -205,31 +204,7 @@ struct vas {
   /* Where the vas is in the array. */
   unsigned int vas_id;
   /*The freelist*/
-  struct vas_freelist *freelst;
 };
-
-struct vas_freelist {
-  struct vas_freelist_node *fst;
-  struct vas_freelist_node *lst;
-};
-
-struct vas_freelist_node {
-  int index;
-  struct vas_freelist_node *next;
-};
-
-
-/*
-  VAS freelist struct, for keeping track of free places to put an spd.
-
-  The node functions should only be used in the freelist code, the freelist functions should be used by everyone else.
- */
-struct vas_freelist *vas_freelist_new(int);
-struct vas_freelist_node *vas_freelist_node_new(int);
-void vas_freelist_add(struct vas_freelist *, int);
-int vas_freelist_pop(struct vas_freelist *);
-void vas_freelist_node_free(struct vas_freelist_node*);
-void vas_freelist_free(struct vas_freelist *);
 
 /*VAS SYSCALL FUNCTIONS*/
 int vas_new( void ); /*Creates a new vas and adds it to the vas list*/
