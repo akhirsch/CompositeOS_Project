@@ -1362,42 +1362,42 @@ int vas_new() {
 }
 
 int vas_delete(int vas_id) {
-  struct vas the_vas = vas_list[vas_id];
+  int i;
   for(i = vas_id; i < cur_num_vases && i + 1 < MAX_VAS_NUM; i++) {
     vas_list[i] = vas_list[i + 1];
+  }
   cur_num_vases--;
   return 1;
 }
 
-int vas_spd_add(int vas_id, struct spd *the_spd) {
+int vas_spd_add(int vas_id, struct spd *spd) {
   struct vas the_vas = vas_list[vas_id];
   int i;
 
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
-    the_vas.virtual_spd_layout[the_spd->location[i].lowest_addr] = the_spd;
+    the_vas.virtual_spd_layout[spd->location[i].lowest_addr] = spd;
   }
   
-  the_spd->composite_vas = &the_vas;
+  spd->composite_vas = &the_vas;
   return 1;
 }
 
-int vas_spd_remove(struct vas the_vas, struct spd *spd) {
+int vas_spd_remove(struct vas *the_vas, struct spd *spd) {
   int i;
 
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
-    the_vas.virtual_spd_layout[the_spd->location[i].lowest_addr] = NULL;
+    the_vas->virtual_spd_layout[spd->location[i].lowest_addr] = NULL;
   }
 
-  the_spd->composite_vas = NULL;
+  spd->composite_vas = NULL;
   return 1;
 }
 
-int vas_expand(struct vas the_vas, struct spd *spd) {
-  return vas_spd_add(the_vas.vas_id, spd);
+int vas_expand(struct vas *the_vas, struct spd *spd) {
+  return vas_spd_add(the_vas->vas_id, spd);
 }
 
-int vas_retract(struct vas the_vas, struct spd *spd) {
+int vas_retract(struct vas *the_vas, struct spd *spd) {
   int r = vas_spd_remove(the_vas, spd);
-  return vas_spd_add(the_vas, spd) && r;
+  return vas_spd_add(the_vas->vas_id, spd) && r;
 }
-
