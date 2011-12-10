@@ -1346,6 +1346,7 @@ int cur_num_vases = 0;
 
 int vas_new() {
   int i;
+  printk("Creating new vas.\n");
   struct vas new_vas = vas_list[cur_num_vases];
   if(cur_num_vases >= MAX_VAS_NUM) {
     printk("vas_cntl: cannot create more vases, too many exist.\n");
@@ -1362,6 +1363,7 @@ int vas_new() {
 }
 
 int vas_delete(int vas_id) {
+  printk("Deleting vas!\n");
   int i;
   for(i = vas_id; i < cur_num_vases && i + 1 < MAX_VAS_NUM; i++) {
     vas_list[i] = vas_list[i + 1];
@@ -1371,6 +1373,7 @@ int vas_delete(int vas_id) {
 }
 
 int vas_spd_add(int vas_id, struct spd *spd) {
+  printk("Adding spd to vas.\n");
   struct vas the_vas = vas_list[vas_id];
   int i;
 
@@ -1384,6 +1387,7 @@ int vas_spd_add(int vas_id, struct spd *spd) {
 }
 
 int vas_spd_remove(struct vas *the_vas, struct spd *spd) {
+  printk("Removing spd from vas.\n");
   int i;
 
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
@@ -1395,10 +1399,12 @@ int vas_spd_remove(struct vas *the_vas, struct spd *spd) {
 }
 
 int vas_expand(struct vas *the_vas, struct spd *spd) {
+  printk("Expanding spd in vas.\n");
   return vas_spd_add(the_vas->vas_id, spd);
 }
 
 int vas_retract(struct vas *the_vas, struct spd *spd) {
+  printk("Retracting spd in vas.\n");
   int r = vas_spd_remove(the_vas, spd);
   return vas_spd_add(the_vas->vas_id, spd) && r;
 }
