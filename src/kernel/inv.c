@@ -251,7 +251,7 @@ COS_SYSCALL struct thd_invocation_frame *pop(struct thread *curr, struct pt_regs
 /* return 1 if the fault is handled by a component */
 int fault_ipc_invoke(struct thread *thd, vaddr_t fault_addr, int flags, struct pt_regs *regs, int fault_num)
 {
-	struct spd *s = virtual_namespace_query(regs->ip, s->composite_vas);
+  struct spd *s = virtual_namespace_query(regs->ip, s->composite_vas);
 	struct thd_invocation_frame *curr_frame;
 	struct inv_ret_struct r;
 	vaddr_t a;
