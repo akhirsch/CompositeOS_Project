@@ -11,8 +11,7 @@ int data_uninit[4096];
 
 void cos_init(void)
 {
-  //u64_t start, end, avg, tot = 0, dev = 0;
-  //	int i, j;
+
 
   /*//BEGIN TESTING CODE
 	
@@ -34,7 +33,8 @@ void cos_init(void)
 	printc("Fork from spd %ld\n", cos_spd_id());
 //END TESTING CODE
 */
-
+  u64_t start, end, avg, tot = 0, dev = 0;
+  int i, j;
 	call();	
 	printc("Starting Invocations.\n");
 	
