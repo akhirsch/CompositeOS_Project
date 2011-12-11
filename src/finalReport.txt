@@ -1,0 +1,87 @@
+CS 3411 - FALL 2011
+John Wittrock
+Krista Harbold
+Andrew Hirsch 
+Tyler Kaczmarek
+
+Final Report - Adding fork() to the Composite OS
+
+
+DESIGN DECISIONS
+
+Most of our design was given to us. However, there were a few design decisions that we made:
+
+     1. The vas Structure
+     The vas itself was something that was designed by us. It went through several iterations, but it ended up being a rather simple array of pointers to spd structs, with some bookkeeping data (namely, a unique id, which tells it's place in the larger array of vases (more on that soon) and a start address).
+
+     2.	The Global vas Data Structure 
+     We needed a way to create vases in the kernel. What we did is created a MAX_VAS_NUM variable (actually a #define statement) and create an array of MAX_VAS_NUM vases. This also assigned each vas a unique id be default - something that we found very useful.
+
+     3. Making system calls
+     We needed to figure out where to call the appropriate vas system calls. Most of the time, this is given to us. However, in the case of when to add an spd to a vas, this actually ended up being a design issue. We ended up calling vas_spd_add in spd_alloc, thus assuring that the spd was in a vas at any given time. However, at one point, we were getting null pointers because we hadn't done this.
+
+     4. Writing fork
+     Because fork uses a lot of booter functions, we placed fork into the booter.c file and called it boot_fork, as fork was already taken in a Linux system. The biggest other design decision was to write boot_spd_clone as a separate function, rather than part of fork.
+
+Most everything else fell into place as most of the system was written assuming design decisions about vases.
+
+-------------------------------------
+
+IMPLEMENTATION:
+
+With the overall goal of adding fork() to Composite, we first needed to add the Virtual address space feature. To do this, we took the existing virtual_spd_layout variable (in spd.c) and abstracted it into a structure called vas that contained it's own array of components called virtual_spd_layout. 
+
+We then created an array of VASes to replace the virtual_spd_layout variable, and had to make the relevant changes in the code--namely adding the ability of an SPD to know which VAS it was in. Without that, we would have had to do a linear-search over all of the created VASes to find an SPD to operate on (call fork() or something similar), and that would have been perhaps a little too expensive. We then had to complete the VAS-related system-call stubs that already existed in inv.c: there were some miscommunications about this at first, and these system calls didn't get done nearly as soon as we might have liked. Basically, we found that it was easier to statically allocate all of the various things we needed rather than have a complicated dynamic system with things like kmalloc() and kfree() floating around everywhere. 
+
+*************
+
+The VAS-related system calls are described below, and they are all in spd.c:
+
+vas_new:
+This function simply checks that we don't currently have more VASes than the hardcoded limit, and then makes a new VAS in the spot on the vas_list denoted by the current number of VASes (the array is 0-indexed), zeros everything out, increments the counter of the number of VASes, and returns.
+
+vas_delete:
+This function basically just takes a vas index and shifts all of the other vases over to allow for it's deletion. It hasn't really gone away, but we figured this was okay for the initial implementation. 
+
+vas_spd_add(int vas_id, struct spd* spd):
+This function takes a vas id and an spd and adds the spd to the VAS by getting the spd's assigned location in memory and dividing by 4 MiB to get the location in the virtual_spd_layout it should be at. Then, the spd has it's vas set to the VAS given by the vas_id passed to the function, and the function returns. 
+
+vas_spd_remove:
+This basically does the exact opposite of vas_spd_add and simply zeros out the variables we set in spd_add.
+
+vas_expand:
+This function just adds the spd to all of it's specified locations in the locations array by calling vas_spd_add.
+
+vas_retract:
+This calls vas_spd_remove followed by vas_spd_add to ensure that the spd is nowhere in the vas it's not supposed to be.
+
+****************
+
+The startup-related parts of the implementation are described below:
+
+To make the system boot with the new VASes instead of with the single-VAS implementation that Composite had before, we think that we just needed to change a few calls to virtual_spd_layout and change them to reference the virtual_spd_layout of the appropriate VAS. We also needed to comment out a few references to virtual_namespace_query, since that would have majorly screwed up our implementation. Finally, we also had to add the creation of a VAS at startup and all of the components getting added to that VAS. This involved changing a few lines in booter.c, and all of the various places in which virtual_spd_layout is referenced.
+
+****************
+
+The fork-related parts of the implementation are described below, and all of the associated calls are in booter.c:
+
+To implement fork(), we needed some way to clone an SPD, just like fork() does on linux with processes. We restricted ourselves to simply copying the static memory of a running component, and we haven't yet figured out how to copy dynamic memory, but perhaps that's a feature for later. Basically, we've divided the fork() call into a few separate parts: boot_fork(), and boot_clone_spd.
+
+boot_fork() basically does the work of fork() in POSIX-compliant systems: it creates a new VAS, creates a new component in that new VAS which is a clone of the component you wanted to fork, and then sets that component running. 
+
+boot_clone_spd() does the work of actually cloning an SPD. To do this, it gets the cobj_header of the spd to be cloned, changes the spdid associated with that header, and then makes most of the calls that are made to create components in the first place. To be honest, we still don't know what some of these do, but were told that's okay. Basically, it does all of the things that one might expect for the first initialization of that component, but instead of copying memory from disk to set the program running, it copies the working static memory of the component that we're forking. This of course doesn't work for copying registers and the like, but we think is okay for a first implementation. 
+
+**************** 
+
+-----------------------------------
+
+ROADBLOCKS:
+
+Unfortunately, we faced a bunch of roadblocks over the course of the project, not the least of which was just getting the system booting the first time. It took us a little while longer than we would have liked to get everyone's VM running, and even then sometimes the VMs acted up and we were forced to start again. Fortunately, version control saved us more times than we would like to admit. 
+
+It also took us a long time just to understand what we were looking at and there were numerous instances in which we were thinking of implementing things in completely the wrong place. More group meetings and better communication probably would have saved us a lot of trouble on this, but the group's schedules just didn't seem to coincide often enough. We did a lot of email communication, and the meetings that we did have at least once a week definitely helped. 
+
+There were a couple of misunderstandings over the course of the project that led to Andrew having to rewrite the VAS-related system calls a couple of times, and this delayed us a bit.
+
+Finally, the code itself was a challenge. It was definitely the most complex and most unique codebase all of us had ever worked with, and this presented its own challenges. The amount of learning that we all had to do definitely prevented us from going a lot faster than we did. We've all reached the conclusion that if we had known how to use Composite earlier in the semester, we would have done a lot better than we did. 
+
