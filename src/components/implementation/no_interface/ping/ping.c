@@ -28,8 +28,11 @@ void cos_init(void)
 	call();	
 	printc("Starting Invocations.\n");
 
-	//TODO: get spd of normal booter component, make sure that you only fork if you're the first component and not the second. 
+	//TODO: get spd of normal booter component, make sure that you only fork if you're the first component and not the second.
+	//If we could boot, we could get the SPD of the first ping component. Unfortunately, we can't boot.
+	if(cos_spd_id() == ADDME){
 	boot_fork();
+	}
 	printc("Fork from spd %ld\n", cos_spd_id());
 //END TESTING CODE
 */
