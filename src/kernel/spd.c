@@ -32,7 +32,7 @@ int virtual_namespace_alloc(struct spd *spd, unsigned long addr, unsigned int si
 	
 	for (i = adj_addr ; i < adj_to ; i++) {
 		if (spd->composite_vas->virtual_spd_layout[i]){ 
-		printk("There's something present at %x", addr+size);		
+		printk("There's something present at %lx", addr+size);		
 		return 0;}
 	}
 
@@ -268,6 +268,8 @@ isolation_level_t cap_change_isolation(int cap_num, isolation_level_t il, int fl
 }
 
 struct spd spds[MAX_NUM_SPDS];
+struct vas vas_list[MAX_VAS_NUM];
+int cur_num_vases = 0;
 
 /*
  * This should be a per-cpu data structure and should be protected
@@ -277,9 +279,8 @@ static struct spd *spd_freelist_head = NULL;
 
 static void spd_init_all(struct spd *spds)
 {
-        printk("In spd_init_all.\n");
 	int i;
-	
+        printk("In spd_init_all.\n");	
 	printk("Setting spd_info.flags, composite_spd, and freelist_next.\n");
 	for (i = 0 ; i < MAX_NUM_SPDS ; i++) {
 		spds[i].spd_info.flags = SPD_FREE;
@@ -292,7 +293,7 @@ static void spd_init_all(struct spd *spds)
        
 	/*for (i = 0 ; i < PGD_PER_PTBL ; i++) {
 		spds[0].composite_vas->virtual_spd_layout[i] = NULL;
-		/*virtual_spd_layout[i] = NULL;*
+		*virtual_spd_layout[i] = NULL;*
 	}*/
 
 	return;
@@ -382,7 +383,7 @@ int spd_reserve_cap_range(struct spd *spd, int amnt)
 }
 
 struct spd *spd_alloc(unsigned short int num_caps, struct usr_inv_cap *user_cap_tbl,
-		      vaddr_t upcall_entry)
+		      vaddr_t upcall_entry, long vas_id)
 {
 	struct spd *spd;
 	int i;
@@ -433,6 +434,8 @@ struct spd *spd_alloc(unsigned short int num_caps, struct usr_inv_cap *user_cap_
 	spd->composite_member_next = spd->composite_member_prev = spd;
 
 	for (i = 0 ; i < MAX_SPD_VAS_LOCATIONS ; i++) spd->location[i].size = 0;
+
+	vas_spd_add(vas_id, spd);
 
 	return spd;
 
@@ -1351,8 +1354,6 @@ int spd_composite_remove_member(struct spd *spd, int remove_mappings)
 	return 0;
 }
     
-struct vas vas_list[MAX_VAS_NUM];
-int cur_num_vases = 0;
 
 int vas_new() {
   int i;
@@ -1373,8 +1374,8 @@ int vas_new() {
 }
 
 int vas_delete(int vas_id) {
-  printk("Deleting vas!\n");
   int i;
+  printk("Deleting vas!\n");
   for(i = vas_id; i < cur_num_vases && i + 1 < MAX_VAS_NUM; i++) {
     vas_list[i] = vas_list[i + 1];
   }
@@ -1383,10 +1384,10 @@ int vas_delete(int vas_id) {
 }
 
 int vas_spd_add(int vas_id, struct spd *spd) {
-  printk("Adding spd to vas.\n");
   struct vas the_vas = vas_list[vas_id];
   int i;
 
+  printk("Adding spd to vas.\n");
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
     //shifting by 22 is dividing by 4 megs, as 2^20 = 1 meg, and 2^20 * 4 = 2^20 * 2^2 = 2^22
     the_vas.virtual_spd_layout[spd->location[i].lowest_addr >> 22] = spd;

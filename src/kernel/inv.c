@@ -3160,7 +3160,7 @@ COS_SYSCALL int cos_syscall_spd_cntl(int id, int op_spdid, long arg1, long arg2)
 			ret = -1;
 			break;
 		}
-		spd = spd_alloc(0, NULL, 0);
+		spd = spd_alloc(0, NULL, 0, arg1);
 		if (!spd) {
 			spd_free_pgtbl(pa);
 			ret = -1;

@@ -495,7 +495,8 @@ static long aed_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
 		spd = spd_alloc(spd_info.num_caps, 
 				(struct usr_inv_cap *)spd_info.ucap_tbl, 
-				spd_info.upcall_entry);
+				spd_info.upcall_entry,
+				0);
 
 		if (!spd) {
 			printk("cos: Could not allocate spd.\n");

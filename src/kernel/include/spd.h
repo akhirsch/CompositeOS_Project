@@ -217,7 +217,7 @@ int vas_retract(struct vas*, struct spd *); /*Given a vas id and a spd, retracts
 paddr_t spd_alloc_pgtbl(void);
 void spd_free_pgtbl(paddr_t pa);
 struct spd *spd_alloc(unsigned short int max_static_cap, struct usr_inv_cap *usr_cap_tbl, 
-		      vaddr_t upcall_entry);
+		      vaddr_t upcall_entry, long vas_id);
 int spd_set_location(struct spd *spd, unsigned long lowest_addr, 
 		     unsigned long size, paddr_t pg_tbl);
 int spd_add_location(struct spd *spd, long base, long size);

@@ -471,7 +471,7 @@ spdid_t boot_fork(spdid_t spdid) {
   int vas_id;
   if((vas_id = cos_vas_cntl(0, COS_VAS_CREATE << 16, 0, 0) == -1))
      BUG();
-  if((new_spdid = cos_spd_cntl(COS_SPD_CREATE, 0, 0, 0)) == 0)
+  if((new_spdid = cos_spd_cntl(COS_SPD_CREATE, 0, vas_id, 0)) == 0)
     BUG();
   if((cos_vas_cntl(0, (((new_spdid << 16) & 0xFFFF0000) + COS_VAS_SPD_ADD), vas_id, 0)) == -1) 
     BUG();
