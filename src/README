@@ -1,0 +1,26 @@
+CS 3411 - FALL 11
+Final Project - fork() in Composite
+
+BUILDING
+To build this project in the VM that we used and have also submitted, just enter the /home/composite/CompositeOS_Project/src directory and type make.
+
+TESTING
+
+Most of the testing code was basically written for us, and we were just modifying the existing ping component to do our bidding. 
+
+The test component we used was ping/pong, and is denoted by lpp.sh
+
+Theory:
+In the src dir:
+$ make cp
+
+In /home/composite/transfer (if this is the first time Composite has been run since rebooting):
+$ sudo make init
+
+In /root/experiments , as root:
+# sh lpp.sh
+
+If all was working, you would see some output from composite, and then two prints denoting two SPDs of ping that have been forked and then continued. This would be enabled by the (currently commented-out) code in ping.c which calls fork and then prints its spdid. Also, you would have to modify the lpp.sh runscript to add the booter.o file (this was removed and the fork() related code commented out so we could just test the boot sequence, which we haven't yet been able to get working).
+
+Practice:
+Follow the same steps as above, but observe the crash of Composite, and look at dmesg to see the BUG call being printed. Sad day.
