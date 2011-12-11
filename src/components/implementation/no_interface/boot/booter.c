@@ -511,7 +511,7 @@ void cos_init(void *arg)
   num_cobj = (int)cos_comp_info.cos_poly[1];
   boot_find_cobjs(h, num_cobj);
   /* This component really might need more vas */
-  if (cos_vas_cntl(COS_VAS_SPD_EXPAND, cos_spd_id(), 
+  if (!cos_vas_cntl(COS_VAS_SPD_EXPAND, cos_spd_id(), 
 		   round_up_to_pgd_page((unsigned long)&num_cobj), 
 		   round_up_to_pgd_page(1))) {
     printc("Could not expand boot component to %p:%x\n",
