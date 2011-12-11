@@ -392,7 +392,8 @@ static void boot_create_system(void)
     vaddr_t comp_info = 0;
 		
     h = hs[i];
-    if ((spdid = cos_spd_cntl(COS_SPD_CREATE, 0, 0, 0)) == 0) BUG();
+    if ((spdid = cos_spd_cntl(COS_SPD_CREATE, 0, 0, 0)) == 0) BUG();	
+    cos_vas_cntl(COS_VAS_SPD_ADD, 0, spdid , 0);
     //printc("spdid %d, h->id %d\n", spdid, h->id);
     assert(spdid == h->id);
     sect = cobj_sect_get(h, 0);
@@ -402,8 +403,7 @@ static void boot_create_system(void)
     if (boot_spd_map(h, spdid, comp_info)) BUG();
     if (boot_spd_reserve_caps(h, spdid)) BUG();
     if (cos_spd_cntl(COS_SPD_ACTIVATE, spdid, 0, 0)) BUG();
-    cos_vas_cntl(COS_VAS_SPD_ADD, 0, spdid , 0);
-  }
+    }
   for (i = 0 ; hs[i] != NULL ; i++) {
     struct cobj_header *h;
     h = hs[i];

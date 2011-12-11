@@ -130,9 +130,9 @@ COS_SYSCALL vaddr_t ipc_walk_static_cap(struct thread *thd, unsigned int capabil
 	capability >>= 20;
 
 	if (unlikely(capability >= MAX_STATIC_CAP)) {
-		struct spd *t = virtual_namespace_query(ip, t->composite_vas);
-		printk("cos: capability %d greater than max from spd %d @ %x.\n", 
-		       capability, (t) ? spd_get_index(t): 0, (unsigned int)ip);
+//		struct spd *t = virtual_namespace_query(ip, t->composite_vas);
+//		printk("cos: capability %d greater than max from spd %d @ %x.\n", 
+//		       capability, (t) ? spd_get_index(t): 0, (unsigned int)ip);
 		return 0;
 	}
 
@@ -251,7 +251,7 @@ COS_SYSCALL struct thd_invocation_frame *pop(struct thread *curr, struct pt_regs
 /* return 1 if the fault is handled by a component */
 int fault_ipc_invoke(struct thread *thd, vaddr_t fault_addr, int flags, struct pt_regs *regs, int fault_num)
 {
-  struct spd *s = virtual_namespace_query(regs->ip, s->composite_vas);
+//  struct spd *s = virtual_namespace_query(regs->ip, s->composite_vas);
 	struct thd_invocation_frame *curr_frame;
 	struct inv_ret_struct r;
 	vaddr_t a;
@@ -259,12 +259,12 @@ int fault_ipc_invoke(struct thread *thd, vaddr_t fault_addr, int flags, struct p
 	struct pt_regs *nregs;
 
 	/* corrupted ip? */
-	if (unlikely(!s)) {
-		curr_frame = thd_invstk_top(thd);
-		s = curr_frame->spd;
-	}
+//	if (unlikely(!s)) {
+//		curr_frame = thd_invstk_top(thd);
+//		s = curr_frame->spd;
+//	}
 	assert(fault_num < COS_NUM_FAULTS);
-	fault_cap = s->fault_handler[fault_num];
+//	fault_cap = s->fault_handler[fault_num];
 	/* If no component catches this fault, upcall into the
 	 * scheduler with a "destroy thread" event. */
 	if (unlikely(!fault_cap)) {

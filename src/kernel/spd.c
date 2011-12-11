@@ -31,11 +31,14 @@ int virtual_namespace_alloc(struct spd *spd, unsigned long addr, unsigned int si
 	unsigned int adj_to = adj_addr + (size>>HPAGE_SHIFT);
 	
 	for (i = adj_addr ; i < adj_to ; i++) {
-		if (spd->composite_vas->virtual_spd_layout[i]) return 0;
+		if (spd->composite_vas->virtual_spd_layout[i]){ 
+		printk("There's something present at %x", addr+size);		
+		return 0;}
 	}
 
 	//printk("cos: adding spd %d from %x to %x\n", spd_get_index(spd), addr, addr+size);
 	for (i = adj_addr ; i < adj_to ; i++) {
+		printk("setting an allocation at spd_layout[%d]", i);
 		spd->composite_vas->virtual_spd_layout[i] = spd;
 	}
 	
