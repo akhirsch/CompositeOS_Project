@@ -274,29 +274,36 @@ static struct spd *spd_freelist_head = NULL;
 
 static void spd_init_all(struct spd *spds)
 {
+        printk("In spd_init_all.\n");
 	int i;
 	
+	printk("Setting spd_info.flags, composite_spd, and freelist_next.\n");
 	for (i = 0 ; i < MAX_NUM_SPDS ; i++) {
 		spds[i].spd_info.flags = SPD_FREE;
 		spds[i].composite_spd = &spds[i].spd_info;
 		spds[i].freelist_next = (i == (MAX_NUM_SPDS-1)) ? NULL : &spds[i+1];
 	}
+	printk("Done.\nSetting spd_freelist_head.\n");
 
 	spd_freelist_head = spds;
-
-	for (i = 0 ; i < PGD_PER_PTBL ; i++) {
+       
+	/*for (i = 0 ; i < PGD_PER_PTBL ; i++) {
 		spds[0].composite_vas->virtual_spd_layout[i] = NULL;
-		/*virtual_spd_layout[i] = NULL;*/
-	}
+		/*virtual_spd_layout[i] = NULL;*
+	}*/
 
 	return;
 }
 	
 void spd_init(void)
 {
+        printk("In spd_init.\nCalling spd_init_all.\n");
 	spd_init_all(spds);
+	printk("Done.\nCalling spid_init_capabilities.\n");
 	spd_init_capabilities(invocation_capabilities);
+	printk("Done.\nCalling spd_init_mpd_descriptors.\n");
 	spd_init_mpd_descriptors();
+	printk("Done.\nExiting spd_init.");
 }
 
 int spd_is_free(int idx)
