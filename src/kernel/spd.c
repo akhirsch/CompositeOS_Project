@@ -1390,17 +1390,17 @@ int vas_delete(int vas_id) {
 int vas_spd_add(int vas_id, struct spd *spd) {
   struct vas the_vas = vas_list[vas_id];
   int i;
-  assert(the_vas.vas_id = vas_id);
+  assert(the_vas.vas_id == vas_id);
   printk("Adding spd to vas.\n");
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
     //shifting by 22 is dividing by 4 megs, as 2^20 = 1 meg, and 2^20 * 4 = 2^20 * 2^2 = 2^22
     long int vaddr = spd->location[i].lowest_addr >> 22;
     the_vas.virtual_spd_layout[vaddr] = spd;
-    assert(the_vas.virtual_spd_layout[vaddr] == spd);
+    //assert(the_vas.virtual_spd_layout[vaddr] == spd);
   }
   
   spd->composite_vas = &the_vas;
-  assert(spd->composite_vas == &the_vas);
+  //assert(spd->composite_vas == &the_vas);
   return 1;
 }
 
@@ -1411,11 +1411,11 @@ int vas_spd_remove(struct vas *the_vas, struct spd *spd) {
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
     long int vaddr = spd->location[i].lowest_addr >> 22;
     the_vas->virtual_spd_layout[vaddr] = NULL;
-    assert(the_vas->virtual_spd_layout[vaddr] == NULL);
+    //assert(the_vas->virtual_spd_layout[vaddr] == NULL);
   }
 
   spd->composite_vas = NULL;
-  assert(spd->composite_vas == NULL);
+  //assert(spd->composite_vas == NULL);
   return 1;
 }
 
