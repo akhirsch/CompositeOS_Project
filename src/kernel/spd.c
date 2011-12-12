@@ -40,6 +40,7 @@ int virtual_namespace_alloc(struct spd *spd, unsigned long addr, unsigned int si
 	for (i = adj_addr ; i < adj_to ; i++) {
 		printk("setting an allocation at spd_layout[%d]", i);
 		spd->composite_vas->virtual_spd_layout[i] = spd;
+		assert(spd);
 	}
 	
 	return 1;
@@ -48,6 +49,7 @@ int virtual_namespace_alloc(struct spd *spd, unsigned long addr, unsigned int si
 struct spd *virtual_namespace_query(unsigned long addr, struct vas *vasPtr)
 {
 	unsigned long adj = addr>>HPAGE_SHIFT;
+	assert(vasPtr->virtual_spd_layout[adj]);
 	return vasPtr->virtual_spd_layout[adj];
 }
 
