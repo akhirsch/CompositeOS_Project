@@ -1417,7 +1417,7 @@ int vas_spd_remove(struct vas *the_vas, struct spd *spd) {
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
     long int vaddr = spd->location[i].lowest_addr >> 22;
     the_vas->virtual_spd_layout[vaddr] = NULL;
-    //assert(the_vas->virtual_spd_layout[vaddr] == NULL);
+    assert(the_vas->virtual_spd_layout[vaddr] == NULL);
   }
 
   spd->composite_vas = NULL;
