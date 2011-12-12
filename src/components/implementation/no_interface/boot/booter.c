@@ -384,7 +384,9 @@ static void boot_find_cobjs(struct cobj_header *h, int n)
 static void boot_create_system(void)
 {
   int i;
-
+  printc("Creating the vas in create_system \n");
+  
+  printc("finished creating vas in create_system \n");
   for (i = 0 ; hs[i] != NULL ; i++) {    
     struct cobj_header *h;
     spdid_t spdid;
@@ -392,8 +394,11 @@ static void boot_create_system(void)
     vaddr_t comp_info = 0;
 		
     h = hs[i];
-    if ((spdid = cos_spd_cntl(COS_SPD_CREATE, 0, 0, 0)) == 0) BUG();	
-    cos_vas_cntl(COS_VAS_SPD_ADD, spdid, 0 , 0);
+    if ((spdid = cos_spd_cntl(0, COS_SPD_CREATE << 16, 0, 0)) == 0) BUG();	
+    printc("adding spd %d to vas 0 \n", spdid);
+    cos_vas_cntl(0, ((COS_VAS_SPD_ADD << 16) & 0xFFFF0000) + spdid, 0 , 0);
+    printc("done with adding spd %d to vas 0 \n", spdid);
+
     //printc("spdid %d, h->id %d\n", spdid, h->id);
     assert(spdid == h->id);
     sect = cobj_sect_get(h, 0);
@@ -514,7 +519,7 @@ void cos_init(void *arg)
   num_cobj = (int)cos_comp_info.cos_poly[1];
   boot_find_cobjs(h, num_cobj);
   /* This component really might need more vas */
-  if (!cos_vas_cntl(COS_VAS_SPD_EXPAND, cos_spd_id(), 
+  if (!cos_vas_cntl(0, ((COS_VAS_SPD_EXPAND << 16) & 0xFFFF0000)+ cos_spd_id(), 
 		   round_up_to_pgd_page((unsigned long)&num_cobj), 
 		   round_up_to_pgd_page(1))) {
     printc("Could not expand boot component to %p:%x\n",

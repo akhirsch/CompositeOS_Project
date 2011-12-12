@@ -1,0 +1,16 @@
+# Compiled source #
+###################
+*.o
+*.o.*
+*.cmd
+*.a
+*output*
+*.d
+
+# Packages #
+############
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.tar.bz
