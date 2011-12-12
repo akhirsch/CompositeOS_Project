@@ -384,7 +384,9 @@ static void boot_find_cobjs(struct cobj_header *h, int n)
 static void boot_create_system(void)
 {
   int i;
+  printc("Creating the vas in create_system \n");
   cos_vas_cntl(COS_VAS_CREATE, 0, 0 ,0);
+  printc("finished creating vas in create_system \n");
   for (i = 0 ; hs[i] != NULL ; i++) {    
     struct cobj_header *h;
     spdid_t spdid;
@@ -393,7 +395,9 @@ static void boot_create_system(void)
 		
     h = hs[i];
     if ((spdid = cos_spd_cntl(COS_SPD_CREATE, 0, 0, 0)) == 0) BUG();	
+    print("adding spd %d to vas 0", spdid \n);
     cos_vas_cntl(COS_VAS_SPD_ADD, spdid, 0 , 0);
+    printc("done with adding spd %d to vas 0", spdid \n);
     //printc("spdid %d, h->id %d\n", spdid, h->id);
     assert(spdid == h->id);
     sect = cobj_sect_get(h, 0);
