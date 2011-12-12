@@ -1370,19 +1370,19 @@ int vas_new() {
   }
   for(i = 0; i < PGD_PER_PTBL; i++) {
     new_vas.virtual_spd_layout[i] = NULL;
-    //assert(new_vas.virtual_spd_layout[i] == NULL);
+    assert(new_vas.virtual_spd_layout[i] == NULL);
   }
   new_vas.start_addr = 0;
-  //assert(new_vas.start_addr == 0);
+  assert(new_vas.start_addr == 0);
   printk("new_vas.start_addr = %d, should = 0.\n", new_vas.start_addr);
   new_vas.vas_id = cur_num_vases;
-  //assert(new_vas.vas_id == cur_num_vases);
+  assert(new_vas.vas_id == cur_num_vases);
   printk("new_vas.vas_id = %d, should = %d.\n", new_vas.vas_id, cur_num_vases);
 
   vas_list[cur_num_vases] = new_vas;
 
   cur_num_vases++;
-  //assert(cur_num_vases > new_vas.vas_id);
+  assert(cur_num_vases > new_vas.vas_id);
   printk("cur_num_vases > new_vas.vas_id <=> %d > %d\n", cur_num_vases, new_vas.vas_id);
   
   return new_vas.vas_id;
@@ -1403,12 +1403,12 @@ int vas_delete(int vas_id) {
 int vas_spd_add(int vas_id, struct spd *spd) {
   struct vas the_vas = vas_list[vas_id];
   int i;
-  //assert(the_vas.vas_id == vas_id);
+  assert(the_vas.vas_id == vas_id);
   printk("vas_spd_add: Looking for vas id %d, got vas id %d\n", vas_id, the_vas.vas_id);
   printk("Adding spd to vas.\n");
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
     //shifting by 22 is dividing by 4 megs, as 2^20 = 1 meg, and 2^20 * 4 = 2^20 * 2^2 = 2^22
-    long int vaddr = spd->location[i].lowest_addr >> 22;
+    long int vaddr = spd->location[i].lowest_addr >> HPAGE_SHIFT;
     the_vas.virtual_spd_layout[vaddr] = spd;
     assert(the_vas.virtual_spd_layout[vaddr] == spd);
   }
@@ -1423,13 +1423,13 @@ int vas_spd_remove(int vas_id, struct spd *spd) {
   printk("Removing spd from vas.\n");
   printk("vas_spd_remove: looking for vas id %d, got vas id %d\n", vas_id, the_vas.vas_id);
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
-    long int vaddr = spd->location[i].lowest_addr >> 22;
+    long int vaddr = spd->location[i].lowest_addr >> HPAGE_SHIFT;
     the_vas.virtual_spd_layout[vaddr] = NULL;
     assert(the_vas.virtual_spd_layout[vaddr] == NULL);
   }
 
   spd->composite_vas = NULL;
-  //assert(spd->composite_vas == NULL);
+  assert(spd->composite_vas == NULL);
   return 1;
 }
 
