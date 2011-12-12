@@ -512,6 +512,7 @@ void cos_init(void *arg)
   LOCK();
   printc("Creating a VAS in cos_init\n");
   cos_vas_cntl(COS_VAS_CREATE, 0, 0 ,0);
+  cos_vas_cntl(COS_VAS_SPD_ADD, cos_spd_id(), 0, 0);
 
   cos_vect_init_static(&spd_info_addresses);
   h = (struct cobj_header *)cos_comp_info.cos_poly[0];

@@ -3295,6 +3295,8 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 	spd = spd_get_by_index(spd_id);
 	if (!spd) return -1;
 
+	printk("vas_cntl: %d | %d | %d | %l \n", id, op, spd_id, addr);
+
 	switch(op) {
 	case COS_VAS_CREATE: 	/* new vas  of size 0*/
 

@@ -51,6 +51,7 @@ struct spd *virtual_namespace_query(unsigned long addr, struct vas *vasPtr)
   printk("\nvnq: addr = %lu \n", addr);
 	unsigned long adj = addr>>HPAGE_SHIFT;
 	//assert(vasPtr->virtual_spd_layout[adj]);
+	printk("vnq: vas = %d\n", vasPtr->vas_id);
 	printk("vnq: spd = %d\n", adj);
 	return vasPtr->virtual_spd_layout[adj];
 }
