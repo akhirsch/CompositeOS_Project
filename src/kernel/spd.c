@@ -1357,19 +1357,23 @@ int spd_composite_remove_member(struct spd *spd, int remove_mappings)
 
 int vas_new() {
   int i;
-  printk("Creating new vas.\n");
   struct vas new_vas = vas_list[cur_num_vases];
+  printk("Creating new vas.\n");
   if(cur_num_vases >= MAX_VAS_NUM) {
     printk("vas_cntl: cannot create more vases, too many exist.\n");
     return -1;
   }
   for(i = 0; i < PGD_PER_PTBL; i++) {
     new_vas.virtual_spd_layout[i] = NULL;
+    assert(new_vas.virtual_spd_layout[i] == NULL);
   }
   new_vas.start_addr = 0;
+  assert(new_vas.start_addr == 0);
   new_vas.vas_id = cur_num_vases;
+  assert(new_vas.vas_id == cur_num_vases);
 
   cur_num_vases++;
+  assert(cur_num_vases > new_vas.vas_id);
   return new_vas.vas_id;
 }
 
@@ -1386,26 +1390,32 @@ int vas_delete(int vas_id) {
 int vas_spd_add(int vas_id, struct spd *spd) {
   struct vas the_vas = vas_list[vas_id];
   int i;
-
+  assert(the_vas.vas_id = vas_id);
   printk("Adding spd to vas.\n");
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
     //shifting by 22 is dividing by 4 megs, as 2^20 = 1 meg, and 2^20 * 4 = 2^20 * 2^2 = 2^22
-    the_vas.virtual_spd_layout[spd->location[i].lowest_addr >> 22] = spd;
+    long int vaddr = spd->location[i].lowest_addr >> 22;
+    the_vas.virtual_spd_layout[vaddr] = spd;
+    assert(the_vas.virtual_spd_layout[vaddr] == spd);
   }
   
   spd->composite_vas = &the_vas;
+  assert(spd->composite_vas == &the_vas);
   return 1;
 }
 
 int vas_spd_remove(struct vas *the_vas, struct spd *spd) {
-  printk("Removing spd from vas.\n");
   int i;
 
+  printk("Removing spd from vas.\n");
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
-    the_vas->virtual_spd_layout[spd->location[i].lowest_addr >> 22] = NULL;
+    long int vaddr = spd->location[i].lowest_addr >> 22;
+    the_vas->virtual_spd_layout[vaddr] = NULL;
+    assert(the_vas->virtual_spd_layout[vaddr] == NULL);
   }
 
   spd->composite_vas = NULL;
+  assert(spd->composite_vas == NULL);
   return 1;
 }
 
