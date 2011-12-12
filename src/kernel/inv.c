@@ -3301,6 +3301,7 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 	  break;
 	case COS_VAS_SPD_ADD:	/* add spd to vas */
 	  /*vas_id is in addr */
+	  printk("Calling vas_spd_add with address %d and spd id &d.\n", addr, spd_id);
 	  ret = vas_spd_add(addr, spd);
 	  break;
 	case COS_VAS_SPD_REM:	/* remove spd from vas */

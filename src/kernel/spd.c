@@ -1385,6 +1385,8 @@ int vas_delete(int vas_id) {
   printk("Deleting vas!\n");
   for(i = vas_id; i < cur_num_vases && i + 1 < MAX_VAS_NUM; i++) {
     vas_list[i] = vas_list[i + 1];
+    vas_list[i].vas_id = i;
+    assert(vas_list[i].vas_id = i);
   }
   cur_num_vases--;
   return 1;
@@ -1393,7 +1395,8 @@ int vas_delete(int vas_id) {
 int vas_spd_add(int vas_id, struct spd *spd) {
   struct vas the_vas = vas_list[vas_id];
   int i;
-  assert(the_vas.vas_id == vas_id);
+  //assert(the_vas.vas_id == vas_id);
+  printk("Looking for vas id %d, got vas id %d\n", vas_id, the_vas.vas_id);
   printk("Adding spd to vas.\n");
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
     //shifting by 22 is dividing by 4 megs, as 2^20 = 1 meg, and 2^20 * 4 = 2^20 * 2^2 = 2^22
@@ -1424,11 +1427,13 @@ int vas_spd_remove(struct vas *the_vas, struct spd *spd) {
 
 int vas_expand(struct vas *the_vas, struct spd *spd) {
   printk("Expanding spd in vas.\n");
+  printk("Expand Calling vas_spd_add with %d\n", the_vas->vas_id);
   return vas_spd_add(the_vas->vas_id, spd);
 }
 
 int vas_retract(struct vas *the_vas, struct spd *spd) {
   printk("Retracting spd in vas.\n");
   int r = vas_spd_remove(the_vas, spd);
+  printk("Retract Calling vas_spd_add with %d.\n", the_vas->vas_id);
   return vas_spd_add(the_vas->vas_id, spd) && r;
 }
