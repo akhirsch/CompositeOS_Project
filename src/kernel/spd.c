@@ -1408,13 +1408,23 @@ int vas_spd_add(int vas_id, struct spd *spd) {
   printk("Adding spd to vas.\n");
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
     //shifting by 22 is dividing by 4 megs, as 2^20 = 1 meg, and 2^20 * 4 = 2^20 * 2^2 = 2^22
-    long int vaddr = spd->location[i].lowest_addr >> HPAGE_SHIFT;
+    long int adj = spd->location[i].lowest_addr >> HPAGE_SHIFT;
     the_vas.virtual_spd_layout[vaddr] = spd;
     assert(the_vas.virtual_spd_layout[vaddr] == spd);
   }
-  printk ("Added spd to vas, adding vas to spd.");
+  printk ("Added spd to vas, adding vas to spd.");*/
   spd->composite_vas = vas_list + vas_id;
   return 1;
+  /*
+  int i, r = 1;
+  for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
+    if(spd->location[i].size == 0) {
+      break;
+    }
+    r = r && virtual_namespace_alloc(spd, spd->location[i].lowest_addr, spd->location[i].size);
+  }
+
+  return r;*/
 }
 
 int vas_spd_remove(int vas_id, struct spd *spd) {
