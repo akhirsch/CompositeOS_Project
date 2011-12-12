@@ -385,7 +385,7 @@ static void boot_create_system(void)
 {
   int i;
   printc("Creating the vas in create_system \n");
-  cos_vas_cntl(COS_VAS_CREATE, 0, 0 ,0);
+  
   printc("finished creating vas in create_system \n");
   for (i = 0 ; hs[i] != NULL ; i++) {    
     struct cobj_header *h;
@@ -394,10 +394,10 @@ static void boot_create_system(void)
     vaddr_t comp_info = 0;
 		
     h = hs[i];
-    if ((spdid = cos_spd_cntl(COS_SPD_CREATE, 0, 0, 0)) == 0) BUG();	
-    print("adding spd %d to vas 0", spdid \n);
-    cos_vas_cntl(COS_VAS_SPD_ADD, spdid, 0 , 0);
-    printc("done with adding spd %d to vas 0", spdid \n);
+    if ((spdid = cos_spd_cntl(0, COS_SPD_CREATE << 16, 0, 0)) == 0) BUG();	
+    printc("adding spd %d to vas 0 \n", spdid);
+    cos_vas_cntl(0, ((COS_VAS_SPD_ADD << 16) & 0xFFFF0000) + spdid, 0 , 0);
+    printc("done with adding spd %d to vas 0 \n", spdid);
     //printc("spdid %d, h->id %d\n", spdid, h->id);
     assert(spdid == h->id);
     sect = cobj_sect_get(h, 0);
