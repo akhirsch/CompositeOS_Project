@@ -384,7 +384,7 @@ static void boot_find_cobjs(struct cobj_header *h, int n)
 static void boot_create_system(void)
 {
   int i;
-  cos_vas_cntl(COS_VAS_CREATE, 0, 0 ,0);
+
   for (i = 0 ; hs[i] != NULL ; i++) {    
     struct cobj_header *h;
     spdid_t spdid;
@@ -506,6 +506,9 @@ void cos_init(void *arg)
   int num_cobj;
 
   LOCK();
+
+  cos_vas_cntl(COS_VAS_CREATE, 0, 0 ,0);
+
   cos_vect_init_static(&spd_info_addresses);
   h = (struct cobj_header *)cos_comp_info.cos_poly[0];
   num_cobj = (int)cos_comp_info.cos_poly[1];

@@ -2986,6 +2986,7 @@ COS_SYSCALL int cos_syscall_mmap_cntl(int spdid, long op_flags_dspd, vaddr_t dad
 	if (NULL == spd || virtual_namespace_query(daddr, spd->composite_vas) != spd) {
 		printk("cos: invalid mmap cntl call for spd %d for spd %d @ vaddr %x\n",
 		       spdid, dspd_id, (unsigned int)daddr);
+		printk("cos: spd = %p\n", spd);
 		return -1;
 	}
 
