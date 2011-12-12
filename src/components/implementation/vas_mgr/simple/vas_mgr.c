@@ -86,7 +86,7 @@ vaddr_t vas_mgr_expand(spdid_t spd, long amnt)
 		i--;
 		if (!found) continue;
 		
-		if (cos_vas_cntl(COS_VAS_SPD_EXPAND, spd, s, amnt)) {
+		if (cos_vascntl(0,((COS_VAS_SPD_EXPAND << 16) & 0xFFFF0000) + spd, s, amnt)) {
 			vas->s[s_idx] = &unknown;
 			continue;
 		}

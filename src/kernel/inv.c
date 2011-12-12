@@ -2986,6 +2986,7 @@ COS_SYSCALL int cos_syscall_mmap_cntl(int spdid, long op_flags_dspd, vaddr_t dad
 	if (NULL == spd || virtual_namespace_query(daddr, spd->composite_vas) != spd) {
 		printk("cos: invalid mmap cntl call for spd %d for spd %d @ vaddr %x\n",
 		       spdid, dspd_id, (unsigned int)daddr);
+		printk("cos: spd = %p\n", spd);
 		return -1;
 	}
 
@@ -3287,6 +3288,8 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 	spdid_t spd_id;
 	struct spd *spd;
 
+	//assert(id == 0);
+
 	op = op_spdid >> 16;
 	spd_id = op_spdid & 0xFFFF;
 	spd = spd_get_by_index(spd_id);
@@ -3294,6 +3297,7 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 
 	switch(op) {
 	case COS_VAS_CREATE: 	/* new vas  of size 0*/
+
 	  printk("vas_cntl: in VAS_CREATE\n");
 	  ret = vas_new();
 	  break;
@@ -3303,22 +3307,28 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 	  break;
 	case COS_VAS_SPD_ADD:	/* add spd to vas */
 	  /*vas_id is in addr */
-	  printk("vas_cntl: in VAS_SPD_ADD\n");
+	  printk("vas_cntl: Calling vas_spd_add with address %ld and spd id %d.\n", addr, spd_id);
 	  ret = vas_spd_add(addr, spd);
 	  break;
 	case COS_VAS_SPD_REM:	/* remove spd from vas */
-	  printk("vas_cntl: in VAS_SPD_ADD\n");
+	  printk("vas_cntl: Calling vas_spd_remove with vas with id %d and spd id %d.\n", spd->composite_vas->vas_id, spd_id);
 	  ret = vas_spd_remove(spd->composite_vas, spd);	    
 	  break;
 	case COS_VAS_SPD_EXPAND:	/* allocate more vas to spd */
 	  printk("vas_cntl: in VAS_SPD_EXPAND\n");
 	  if (spd_add_location(spd, addr, sz)) ret = -1;
-	  else ret = vas_expand(spd->composite_vas, spd);
+	  else {
+	    printk("vas_cntl: Calling vas_expand with vas with id %d and spd of id %d.\n", spd->composite_vas->vas_id, spd_id);
+	    ret = vas_expand(spd->composite_vas, spd);
+	  }
 	  break;
 	case COS_VAS_SPD_RETRACT:	/* deallocate some vas from spd */
 	  printk("vas_cntl: in VAS_SPD_RETRACT\n");
 	  if (spd_rem_location(spd, addr, sz)) ret = -1;
-	  else ret = vas_retract(spd->composite_vas, spd);
+	  else {
+	    printk("vas_cntl: Calling vas_retract with vas with id %d and spd of id %d.\n", spd->composite_vas->vas_id, spd_id);
+	    ret = vas_retract(spd->composite_vas, spd);
+	  }
 	  break;
         default:
 	  printk("vas_cntl: undefined operation %d.\n", op);
