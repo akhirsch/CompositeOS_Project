@@ -3294,23 +3294,29 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 
 	switch(op) {
 	case COS_VAS_CREATE: 	/* new vas  of size 0*/
+	  printk("vas_cntl: in VAS_CREATE\n");
 	  ret = vas_new();
 	  break;
 	case COS_VAS_DELETE:	/* remove vas */
+	  printk("vas_cntl: in VAS_DELETE\n");
 	  ret = vas_delete(addr);
 	  break;
 	case COS_VAS_SPD_ADD:	/* add spd to vas */
 	  /*vas_id is in addr */
+	  printk("vas_cntl: in VAS_SPD_ADD\n");
 	  ret = vas_spd_add(addr, spd);
 	  break;
 	case COS_VAS_SPD_REM:	/* remove spd from vas */
+	  printk("vas_cntl: in VAS_SPD_ADD\n");
 	  ret = vas_spd_remove(spd->composite_vas, spd);	    
 	  break;
 	case COS_VAS_SPD_EXPAND:	/* allocate more vas to spd */
+	  printk("vas_cntl: in VAS_SPD_EXPAND\n");
 	  if (spd_add_location(spd, addr, sz)) ret = -1;
 	  else ret = vas_expand(spd->composite_vas, spd);
 	  break;
 	case COS_VAS_SPD_RETRACT:	/* deallocate some vas from spd */
+	  printk("vas_cntl: in VAS_SPD_RETRACT\n");
 	  if (spd_rem_location(spd, addr, sz)) ret = -1;
 	  else ret = vas_retract(spd->composite_vas, spd);
 	  break;
