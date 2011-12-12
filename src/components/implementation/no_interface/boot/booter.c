@@ -384,9 +384,7 @@ static void boot_find_cobjs(struct cobj_header *h, int n)
 static void boot_create_system(void)
 {
   int i;
-  printc("Creating the vas in create_system \n");
-  
-  printc("finished creating vas in create_system \n");
+
   for (i = 0 ; hs[i] != NULL ; i++) {    
     struct cobj_header *h;
     spdid_t spdid;
@@ -507,11 +505,12 @@ void failure_notif_fail(spdid_t caller, spdid_t failed)
 
 void cos_init(void *arg)
 {
+  printc("CALLING BOOTER COS_INIT\n");
   struct cobj_header *h;
   int num_cobj;
 
   LOCK();
-
+  printc("Creating a VAS in cos_init\n");
   cos_vas_cntl(COS_VAS_CREATE, 0, 0 ,0);
 
   cos_vect_init_static(&spd_info_addresses);
@@ -519,6 +518,7 @@ void cos_init(void *arg)
   num_cobj = (int)cos_comp_info.cos_poly[1];
   boot_find_cobjs(h, num_cobj);
   /* This component really might need more vas */
+  printc("Seeing if this actually calls create\n");
   if (!cos_vas_cntl(0, ((COS_VAS_SPD_EXPAND << 16) & 0xFFFF0000)+ cos_spd_id(), 
 		   round_up_to_pgd_page((unsigned long)&num_cobj), 
 		   round_up_to_pgd_page(1))) {
