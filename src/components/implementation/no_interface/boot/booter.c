@@ -394,7 +394,7 @@ static void boot_create_system(void)
     h = hs[i];
     if ((spdid = cos_spd_cntl(0, COS_SPD_CREATE << 16, 0, 0)) == 0) BUG();	
     printc("adding spd %d to vas 0 \n", spdid);
-    cos_vas_cntl(0, ((COS_VAS_SPD_ADD << 16) & 0xFFFF0000) + spdid, 0 , 0);
+    cos_vas_cntl(COS_VAS_SPD_ADD, spdid, 0 , 0);
     printc("done with adding spd %d to vas 0 \n", spdid);
 
     //printc("spdid %d, h->id %d\n", spdid, h->id);
@@ -472,11 +472,11 @@ spdid_t boot_fork(spdid_t spdid) {
   int retv = 0;
   spdid_t new_spdid;
   int vas_id;
-  if((vas_id = cos_vas_cntl(0, COS_VAS_CREATE << 16, 0, 0) == -1))
+  if((vas_id = cos_vas_cntl(COS_VAS_CREATE, 0, 0) == -1))
      BUG();
   if((new_spdid = cos_spd_cntl(COS_SPD_CREATE, 0, vas_id, 0)) == 0)
     BUG();
-  if((cos_vas_cntl(0, (((new_spdid << 16) & 0xFFFF0000) + COS_VAS_SPD_ADD), vas_id, 0)) == -1) 
+  if((cos_vas_cntl(COS_VAS_SPD_ADD, new_spdid, vas_id, 0)) == -1) 
     BUG();
   
   boot_clone_spd(new_spdid, spdid);
@@ -519,7 +519,7 @@ void cos_init(void *arg)
   boot_find_cobjs(h, num_cobj);
   /* This component really might need more vas */
   printc("Seeing if this actually calls create\n");
-  if (!cos_vas_cntl(0, ((COS_VAS_SPD_EXPAND << 16) & 0xFFFF0000)+ cos_spd_id(), 
+  if (!cos_vas_cntl(COS_VAS_SPD_EXPAND, cos_spd_id(), 
 		   round_up_to_pgd_page((unsigned long)&num_cobj), 
 		   round_up_to_pgd_page(1))) {
     printc("Could not expand boot component to %p:%x\n",
