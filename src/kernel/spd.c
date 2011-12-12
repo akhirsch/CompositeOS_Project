@@ -1369,17 +1369,20 @@ int vas_new() {
   }
   for(i = 0; i < PGD_PER_PTBL; i++) {
     new_vas.virtual_spd_layout[i] = NULL;
-    assert(new_vas.virtual_spd_layout[i] == NULL);
+    //assert(new_vas.virtual_spd_layout[i] == NULL);
   }
   new_vas.start_addr = 0;
-  assert(new_vas.start_addr == 0);
+  //assert(new_vas.start_addr == 0);
+  printk("new_vas.start_addr = %d, should = 0.\n", new_vas.start_addr);
   new_vas.vas_id = cur_num_vases;
-  assert(new_vas.vas_id == cur_num_vases);
+  //assert(new_vas.vas_id == cur_num_vases);
+  printk("new_vas.vas_id = %d, should = %d.\n", new_vas.vas_id, cur_num_vases);
 
   vas_list[cur_num_vases] = new_vas;
 
   cur_num_vases++;
-  assert(cur_num_vases > new_vas.vas_id);
+  //assert(cur_num_vases > new_vas.vas_id);
+  printk("cur_num_vases > new_vas.vas_id <=> %d > %d\n", cur_num_vases, new_vas.vas_id);
   
   return new_vas.vas_id;
 }

@@ -3288,7 +3288,8 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 	spdid_t spd_id;
 	struct spd *spd;
 
-	assert(id == 0);
+	//assert(id == 0);
+	printk("vas:cntl: id == %d\n", id);
 
 	op = op_spdid >> 16;
 	spd_id = op_spdid & 0xFFFF;
