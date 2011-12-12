@@ -210,9 +210,9 @@ struct vas {
 int vas_new( void ); /*Creates a new vas and adds it to the vas list*/
 int vas_delete(int); /*Given a vas id, deletes that vas*/
 int vas_spd_add(int, struct spd *); /*Given a vas id and a spd, adds the spd to the vas*/
-int vas_spd_remove(struct vas *, struct spd *); /*Given a vas id and a spd, removes the spd from the vas*/
-int vas_expand(struct vas*, struct spd *); /*Given a vas id and a spd, gives that spd an extra 4MB space.*/
-int vas_retract(struct vas*, struct spd *); /*Given a vas id and a spd, retracts that spd in that vas.*/
+int vas_spd_remove(int, struct spd *); /*Given a vas id and a spd, removes the spd from the vas*/
+int vas_expand(int, struct spd *); /*Given a vas id and a spd, gives that spd an extra 4MB space.*/
+int vas_retract(int, struct spd *); /*Given a vas id and a spd, retracts that spd in that vas.*/
 
 paddr_t spd_alloc_pgtbl(void);
 void spd_free_pgtbl(paddr_t pa);

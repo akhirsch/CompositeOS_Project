@@ -3289,13 +3289,15 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 	struct spd *spd;
 
 	//assert(id == 0);
+	printk("vas_cntl: id == %d\n", id);
 
 	op = op_spdid >> 16;
 	spd_id = op_spdid & 0xFFFF;
 	spd = spd_get_by_index(spd_id);
 	if (!spd) return -1;
 
-	printk("vas_cntl: %d | %d | %d | %l \n", id, op, spd_id, addr);
+	printk("vas_cntl: id = %d, op = %d, spd_id = %ld, addr = %ld, sz = %ld\n", id, op, spd_id, addr, sz);
+
 
 	switch(op) {
 	case COS_VAS_CREATE: 	/* new vas  of size 0*/
@@ -3314,14 +3316,14 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 	  break;
 	case COS_VAS_SPD_REM:	/* remove spd from vas */
 	  printk("vas_cntl: Calling vas_spd_remove with vas with id %d and spd id %d.\n", spd->composite_vas->vas_id, spd_id);
-	  ret = vas_spd_remove(spd->composite_vas, spd);	    
+	  ret = vas_spd_remove(spd->composite_vas->vas_id, spd);	    
 	  break;
 	case COS_VAS_SPD_EXPAND:	/* allocate more vas to spd */
 	  printk("vas_cntl: in VAS_SPD_EXPAND\n");
 	  if (spd_add_location(spd, addr, sz)) ret = -1;
 	  else {
 	    printk("vas_cntl: Calling vas_expand with vas with id %d and spd of id %d.\n", spd->composite_vas->vas_id, spd_id);
-	    ret = vas_expand(spd->composite_vas, spd);
+	    ret = vas_expand(spd->composite_vas->vas_id, spd);
 	  }
 	  break;
 	case COS_VAS_SPD_RETRACT:	/* deallocate some vas from spd */
@@ -3329,7 +3331,7 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 	  if (spd_rem_location(spd, addr, sz)) ret = -1;
 	  else {
 	    printk("vas_cntl: Calling vas_retract with vas with id %d and spd of id %d.\n", spd->composite_vas->vas_id, spd_id);
-	    ret = vas_retract(spd->composite_vas, spd);
+	    ret = vas_retract(spd->composite_vas->vas_id, spd);
 	  }
 	  break;
         default:
