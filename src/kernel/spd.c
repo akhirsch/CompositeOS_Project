@@ -1372,8 +1372,11 @@ int vas_new() {
   new_vas.vas_id = cur_num_vases;
   assert(new_vas.vas_id == cur_num_vases);
 
+  vas_list[cur_num_vases] = new_vas;
+
   cur_num_vases++;
   assert(cur_num_vases > new_vas.vas_id);
+  
   return new_vas.vas_id;
 }
 
