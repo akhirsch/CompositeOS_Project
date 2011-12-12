@@ -1393,7 +1393,8 @@ int vas_delete(int vas_id) {
 int vas_spd_add(int vas_id, struct spd *spd) {
   struct vas the_vas = vas_list[vas_id];
   int i;
-  assert(the_vas.vas_id == vas_id);
+//  assert(the_vas.vas_id == vas_id);
+  printk("vas id is currently: %d in spd_add and the_vas.vas_id is %d \n", vas_id, the_vas.vas_id);
   printk("Adding spd to vas.\n");
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
     //shifting by 22 is dividing by 4 megs, as 2^20 = 1 meg, and 2^20 * 4 = 2^20 * 2^2 = 2^22
