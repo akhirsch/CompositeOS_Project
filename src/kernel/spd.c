@@ -1403,28 +1403,28 @@ int vas_spd_add(int vas_id, struct spd *spd) {
   struct vas the_vas = vas_list[vas_id];
   int i;
   //assert(the_vas.vas_id == vas_id);
-  printk("Looking for vas id %d, got vas id %d\n", vas_id, the_vas.vas_id);
+  printk("vas_spd_add: Looking for vas id %d, got vas id %d\n", vas_id, the_vas.vas_id);
   printk("Adding spd to vas.\n");
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
     //shifting by 22 is dividing by 4 megs, as 2^20 = 1 meg, and 2^20 * 4 = 2^20 * 2^2 = 2^22
     long int vaddr = spd->location[i].lowest_addr >> 22;
     the_vas.virtual_spd_layout[vaddr] = spd;
-    //assert(the_vas.virtual_spd_layout[vaddr] == spd);
+    assert(the_vas.virtual_spd_layout[vaddr] == spd);
   }
-  
-  spd->composite_vas = &the_vas;
-  //assert(spd->composite_vas == &the_vas);
+  printk ("Added spd to vas, adding vas to spd.");
+  spd->composite_vas = vas_list + vas_id;
   return 1;
 }
 
-int vas_spd_remove(struct vas *the_vas, struct spd *spd) {
+int vas_spd_remove(int vas_id, struct spd *spd) {
   int i;
-
+  struct vas the_vas = vas_list[vas_id];
   printk("Removing spd from vas.\n");
+  printk("vas_spd_remove: looking for vas id %d, got vas id %d\n", vas_id, the_vas.vas_id);
   for(i = 0; i < MAX_SPD_VAS_LOCATIONS; i++) {
     long int vaddr = spd->location[i].lowest_addr >> 22;
-    the_vas->virtual_spd_layout[vaddr] = NULL;
-    assert(the_vas->virtual_spd_layout[vaddr] == NULL);
+    the_vas.virtual_spd_layout[vaddr] = NULL;
+    assert(the_vas.virtual_spd_layout[vaddr] == NULL);
   }
 
   spd->composite_vas = NULL;
@@ -1432,15 +1432,16 @@ int vas_spd_remove(struct vas *the_vas, struct spd *spd) {
   return 1;
 }
 
-int vas_expand(struct vas *the_vas, struct spd *spd) {
+int vas_expand(int vas_id, struct spd *spd) {
   printk("Expanding spd in vas.\n");
-  printk("Expand Calling vas_spd_add with %d\n", the_vas->vas_id);
-  return vas_spd_add(the_vas->vas_id, spd);
+  printk("Expand Calling vas_spd_add with %d\n", vas_id);
+  return vas_spd_add(vas_id, spd);
 }
 
-int vas_retract(struct vas *the_vas, struct spd *spd) {
+int vas_retract(int vas_id, struct spd *spd) {
   printk("Retracting spd in vas.\n");
-  int r = vas_spd_remove(the_vas, spd);
-  printk("Retract Calling vas_spd_add with %d.\n", the_vas->vas_id);
-  return vas_spd_add(the_vas->vas_id, spd) && r;
+  printk("vas_retract: calling vas_spd_remove with vas_id %d", vas_id);
+  int r = vas_spd_remove(vas_id, spd);
+  printk("Retract Calling vas_spd_add with %d.\n", vas_id);
+  return vas_spd_add(vas_id, spd) && r;
 }

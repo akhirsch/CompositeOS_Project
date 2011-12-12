@@ -472,7 +472,7 @@ spdid_t boot_fork(spdid_t spdid) {
   int retv = 0;
   spdid_t new_spdid;
   int vas_id;
-  if((vas_id = cos_vas_cntl(COS_VAS_CREATE, 0, 0) == -1))
+  if((vas_id = cos_vas_cntl(COS_VAS_CREATE, 0, 0, 0) == -1))
      BUG();
   if((new_spdid = cos_spd_cntl(COS_SPD_CREATE, 0, vas_id, 0)) == 0)
     BUG();
@@ -518,7 +518,7 @@ void cos_init(void *arg)
   num_cobj = (int)cos_comp_info.cos_poly[1];
   boot_find_cobjs(h, num_cobj);
   /* This component really might need more vas */
-  printc("Seeing if this actually calls create\n");
+  printc("Seeing if this actually calls create: cos_vas_cntl(COS_VAS_SPD_EXPAND, %lud, %lud, %lud)\n", cos_spd_id(), round_up_to_pgd_page((unsigned long)&num_cobj), round_up_to_pgd_page(1));
   if (!cos_vas_cntl(COS_VAS_SPD_EXPAND, cos_spd_id(), 
 		   round_up_to_pgd_page((unsigned long)&num_cobj), 
 		   round_up_to_pgd_page(1))) {
