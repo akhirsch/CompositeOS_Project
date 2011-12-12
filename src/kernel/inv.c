@@ -3298,11 +3298,12 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 
 	switch(op) {
 	case COS_VAS_CREATE: 	/* new vas  of size 0*/
-	  printk("vas_cntl: Calling vas_new\n");
+
+	  printk("vas_cntl: in VAS_CREATE\n");
 	  ret = vas_new();
 	  break;
 	case COS_VAS_DELETE:	/* remove vas */
-	  printk("vas_cntl: Calling vas_delete to delete vas with id %ld.\n", addr);
+	  printk("vas_cntl: in VAS_DELETE\n");
 	  ret = vas_delete(addr);
 	  break;
 	case COS_VAS_SPD_ADD:	/* add spd to vas */
@@ -3315,6 +3316,7 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 	  ret = vas_spd_remove(spd->composite_vas, spd);	    
 	  break;
 	case COS_VAS_SPD_EXPAND:	/* allocate more vas to spd */
+	  printk("vas_cntl: in VAS_SPD_EXPAND\n");
 	  if (spd_add_location(spd, addr, sz)) ret = -1;
 	  else {
 	    printk("vas_cntl: Calling vas_expand with vas with id %d and spd of id %d.\n", spd->composite_vas->vas_id, spd_id);
@@ -3322,6 +3324,7 @@ COS_SYSCALL int cos_syscall_vas_cntl(int id, int op_spdid, long addr, long sz)
 	  }
 	  break;
 	case COS_VAS_SPD_RETRACT:	/* deallocate some vas from spd */
+	  printk("vas_cntl: in VAS_SPD_RETRACT\n");
 	  if (spd_rem_location(spd, addr, sz)) ret = -1;
 	  else {
 	    printk("vas_cntl: Calling vas_retract with vas with id %d and spd of id %d.\n", spd->composite_vas->vas_id, spd_id);
