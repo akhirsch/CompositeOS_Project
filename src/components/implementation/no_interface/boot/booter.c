@@ -393,7 +393,7 @@ static void boot_create_system(void)
 		
     h = hs[i];
     if ((spdid = cos_spd_cntl(COS_SPD_CREATE, 0, 0, 0)) == 0) BUG();	
-    cos_vas_cntl(COS_VAS_SPD_ADD, 0, spdid , 0);
+    cos_vas_cntl(COS_VAS_SPD_ADD, spdid, 0 , 0);
     //printc("spdid %d, h->id %d\n", spdid, h->id);
     assert(spdid == h->id);
     sect = cobj_sect_get(h, 0);
